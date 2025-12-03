@@ -1,5 +1,5 @@
 import "./matrix.css";
-import { ListExport, LoadMatrix, SaveMatrix } from "../wailsjs/go/main/App";
+import { ListExport, LoadMatrix, SaveMatrix, SaveOriginalMatrix } from "../wailsjs/go/main/App";
 
 const OPTIONS = ["-", "Хочу видеть"] as const;
 type Option = typeof OPTIONS[number];
@@ -21,6 +21,7 @@ class MatrixApp {
     private matrix: Option[][] = [];
     private statusEl!: HTMLElement;
     private matrixFilename = "matrix3.json";
+    private originalMatrixFilename = "original_matrix3.json"
 
     constructor() {
         this.waitForDOMAndInit();
@@ -167,6 +168,7 @@ class MatrixApp {
 
         try {
             await SaveMatrix(this.matrixFilename, intMatrix, this.currentUUID);
+            await SaveOriginalMatrix(this.originalMatrixFilename, this.matrix);
             this.showStatus("Сохранено!", "green");
         } catch (err: any) {
             this.showStatus("ОШИБКА! Невозможно сохранить", "red");

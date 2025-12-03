@@ -6,6 +6,14 @@ export function CheckMatrices() {
   return window['go']['main']['App']['CheckMatrices']();
 }
 
+export function CheckResults(arg1) {
+  return window['go']['main']['App']['CheckResults'](arg1);
+}
+
+export function CreateExcelFile(arg1) {
+  return window['go']['main']['App']['CreateExcelFile'](arg1);
+}
+
 export function GetResults() {
   return window['go']['main']['App']['GetResults']();
 }
@@ -38,6 +46,18 @@ export function SaveMatrix(arg1, arg2, arg3) {
   return window['go']['main']['App']['SaveMatrix'](arg1, arg2, arg3);
 }
 
+export function SaveOriginalMatrix(arg1, arg2) {
+  return window['go']['main']['App']['SaveOriginalMatrix'](arg1, arg2);
+}
+
 export function SaveResult(arg1, arg2, arg3) {
   return window['go']['main']['App']['SaveResult'](arg1, arg2, arg3);
+}
+
+export function SaveTestDate(arg1) {
+  return window['go']['main']['App']['SaveTestDate'](arg1);
+}
+
+export function ShowSaveExcelDialog() {
+  return window['go']['main']['App']['ShowSaveExcelDialog']();
 }

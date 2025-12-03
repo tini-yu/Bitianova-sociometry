@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -13,16 +14,16 @@ func NewListService() *ListService {
 	return &ListService{}
 }
 
-
 var current_names = make(map[string]bool)
 var names = make([]string, 0) //not nil, but len==0
 var SavedList []string
 var NameIds map[string]int
 var SessionId string
+var TestDate time.Time
 
 func CreateSessionId() {
 	SessionId = uuid.NewString()
-	log.Println("SessionId: " + SessionId)
+	// log.Println("SessionId: " + SessionId)
 }
 
 func (s *ListService) ListAdd(name string) error {
@@ -49,16 +50,37 @@ func (s *ListService) ListRemove(id int) error {
 }
 
 type ListFile struct {
-    Labels []string `json:"labels"`
-    UUID   string   `json:"uuid"`
+	Labels []string `json:"labels"`
+	UUID   string   `json:"uuid"`
 }
 
 func (s *ListService) ListExport() ListFile {
-    SavedList = names
+	SavedList = names
 	log.Println("List exported successfully")
 
-    return ListFile{
-        Labels: SavedList,
-        UUID:   SessionId,
-    }
+	return ListFile{
+		Labels: SavedList,
+		UUID:   SessionId,
+	}
+}
+
+func getListInterface() *[]interface{} {
+	listInterface := make([]interface{}, len(names))
+	for id, val := range names {
+		listInterface[id] = val
+	}
+
+	return &listInterface
+}
+
+func (s *ListService) SaveTestDate(date string) {
+	dateLayout := "2006-01-02" //yyyy-mm-dd
+
+	t, err := time.Parse(dateLayout, date)
+	if err != nil {
+		fmt.Println("Error parsing date:", err)
+		return
+	}
+
+	TestDate = t
 }

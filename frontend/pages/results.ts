@@ -3,8 +3,13 @@ import {
     GetResults,
     LoadResult,
     SaveResult,
-    CheckMatrices
+    CheckMatrices,
+    CheckResults,
+    SaveOriginalMatrix,
+    CreateExcelFile,
+    ShowSaveExcelDialog,
 } from "../wailsjs/go/main/App";
+
 
 const COLUMN_LABELS = [
     "Положительные выборы",
@@ -15,7 +20,7 @@ const COLUMN_LABELS = [
     "Кол-во противоречивых выборов",
     "Аутосоциометрия",
     "Кол-во референтных выборов",
-    "Целевая группа" 
+    "Целевая группа"
 ] as const;
 
 const EDITABLE_COLUMN_INDEX = 8;
@@ -29,6 +34,7 @@ class Matrix4 {
 
     private currentUUID = "";
     private filename = "results.json";
+    private originalMatrixFilename = "original_results.json"
 
     private tableHead!: HTMLTableSectionElement;
     private tableBody!: HTMLTableSectionElement;
@@ -50,6 +56,8 @@ class Matrix4 {
 
         document.getElementById("save-btn")!.onclick = () => this.save();
         document.getElementById("load-btn")!.onclick = () => this.load();
+        document.getElementById("export-btn")!.onclick = () => this.exportToExcel();
+
 
         await this.load();
     }
@@ -200,14 +208,42 @@ class Matrix4 {
     }
 
     private async save() {
+        const ok = await CheckMatrices();
+        if (!ok) {
+            this.showStatus("Необходимо заполнить матрицы вопросов", "red");
+            return;
+        }
+
         const rows = this.labels.length;
         const data = Array.from({ length: rows }, (_, r) => [...this.matrix[r]]);
 
         try {
             await SaveResult(this.filename, data, this.currentUUID);
+            await SaveOriginalMatrix(this.originalMatrixFilename, this.matrix)
             this.showStatus("Сохранено!", "green");
         } catch (err: any) {
             this.showStatus(err, "red");
+        }
+    }
+
+    private async exportToExcel() {
+        const ok = await CheckResults(this.currentUUID);
+        if (!ok) {
+            this.showStatus("Необходимо сохранить таблицу", "red");
+            return;
+        }
+        try {
+            const fullPath = await ShowSaveExcelDialog();
+
+            if (!fullPath) {
+                this.showStatus("Сохранение отменено", "grey");
+                return;
+            }
+
+            await CreateExcelFile(fullPath);
+            this.showStatus(`Файл успешно сохранён:\n${fullPath}`, "green");
+        } catch (err) {
+            this.showStatus(`Ошибка сохранения файла: ${err}`, "red");
         }
     }
 
@@ -222,5 +258,5 @@ class Matrix4 {
 }
 
 export function init() {
-    new Matrix4(); 
+    new Matrix4();
 }

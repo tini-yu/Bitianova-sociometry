@@ -40,13 +40,13 @@ func (s *ResultService) GetResults() Results {
 
 	fmt.Println("SessionId: ", SessionId)
 	return Results{
-		Labels: SavedList,
+		Labels: names,
 		UUID:   SessionId,
 		Maps:   maps,
 	}
 }
 
-//Конвертируем карты т.к. таблица в .ts работает только с map[string]string
+// Конвертируем карты т.к. таблица в .ts работает только с map[string]string
 func convertMap(originalMap map[string]int) map[string]string {
 	newMap := make(map[string]string)
 	for key, value := range originalMap {
@@ -110,7 +110,7 @@ func (s *ResultService) LoadResult(filename string) (string, error) {
 	return string(jsonData), nil
 }
 
-//Проверяем, что все матрицы описывают один и тот же список, чтобы не считать результаты в ином случае
+// Проверяем, что все матрицы описывают один и тот же список, чтобы не считать результаты в ином случае
 func (s *ResultService) CheckMatrices() bool {
 	matrix1, err := getMatrixUUID(M1)
 	if err != nil {
@@ -129,4 +129,34 @@ func (s *ResultService) CheckMatrices() bool {
 	}
 
 	return false
+}
+// Проверяем что текущее сохранение актуально.
+func (s *ResultService) CheckResults(currentUUID string) bool {
+	fullPath := filepath.Join(SaveDir, "results.json")
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		fmt.Println(err)
+		return false
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		log.Println("Error opening saved matrix file")
+		return false
+	}
+	defer file.Close()
+
+	var resultsFile ResultFile
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&resultsFile)
+	if err != nil {
+		log.Println("Error decoding saved matrix")
+		return false
+	}
+
+	if resultsFile.UUID == currentUUID {
+		return true
+	}
+
+	return false
+	
 }

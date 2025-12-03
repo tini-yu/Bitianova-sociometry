@@ -28,7 +28,8 @@ h1 {
 .table-wrapper {
     max-width: 100%;
     min-width: 50%;
-    height: 70vh;
+    min-height: 30vh;
+    max-height: 70vh;
     overflow: auto;
     position:relative;
     border: 2px solid #333;
@@ -113,6 +114,14 @@ button {
 
 button:hover {
   background: #0055aa;
+}
+
+.btn-export {
+  background: #107e3e;    /* green – you can choose any color */
+}
+
+.btn-export:hover {
+  background: #0e6b33;    /* darker green on hover */
 }
 
 #matrix-status {

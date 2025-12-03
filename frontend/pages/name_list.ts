@@ -1,5 +1,5 @@
 import "../src/style.css";
-import { ListAdd, ListGet, ListRemove } from "../wailsjs/go/main/App";
+import { ListAdd, ListGet, ListRemove, SaveTestDate } from "../wailsjs/go/main/App";
 
 const DEBUG = true;
 
@@ -20,7 +20,7 @@ async function refreshNames(listEl: HTMLElement, statusEl: HTMLElement) {
   try {
     log("refreshNames() start");
     const nameList: string[] = await ListGet();
-    
+
     if (nameList.length === 0) {
       listEl.innerHTML = '<p class="empty">Список пуст.</p>';
       return;
@@ -38,7 +38,7 @@ async function refreshNames(listEl: HTMLElement, statusEl: HTMLElement) {
       btn.addEventListener("click", async (e) => {
         const target = e.target as HTMLElement;
         const index = parseInt(target.dataset.index || "-1");
-        if(index === -1) return;
+        if (index === -1) return;
 
         try {
           await ListRemove(index);
@@ -67,10 +67,27 @@ export async function init() {
     const listEl = document.querySelector("#nameList") as HTMLDivElement;
     const statusEl = document.querySelector("#status") as HTMLParagraphElement;
 
-    // if (!inputEl || !buttonEl || !listEl || !statusEl) {
-    //     console.error("Required elements not found in DOM");
-    //     return;
-    // }
+    const dateInputEl = document.querySelector("#dateInput") as HTMLInputElement;
+    const dateButtonEl = document.querySelector("#dateButton") as HTMLButtonElement;
+
+    async function addDate() {
+      const date = dateInputEl.value
+      if (!date) {
+        showStatus(statusEl, "Пожалуйста, введите дату.", "error");
+        return;
+      }
+      try {
+        await SaveTestDate(date)
+        showStatus(statusEl, `Дата сохранена: ${date}`, "success");
+      } catch (err) {
+        showStatus(statusEl, `Неизвестная ошибка: ${err}`, "error");
+      }
+    }
+
+    dateButtonEl.onclick = addDate;
+    dateInputEl.onkeydown = (e) => {
+      if (e.key === "Enter") addDate();
+    };
 
     async function addName() {
       const name = inputEl.value.trim();
@@ -89,8 +106,8 @@ export async function init() {
     }
 
     buttonEl.onclick = addName;
-    inputEl.onkeydown = (e) => { 
-        if (e.key === "Enter") addName(); 
+    inputEl.onkeydown = (e) => {
+      if (e.key === "Enter") addName();
     };
 
     await refreshNames(listEl, statusEl);

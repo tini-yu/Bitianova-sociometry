@@ -37,16 +37,16 @@ func choiceCalc() {
 
 	positiveChoices = make(map[string]int)
 	negativeChoices = make(map[string]int)
-	for _, name := range SavedList {
+	for _, name := range names {
 		negativeChoices[name] = 0
 		positiveChoices[name] = 0
 	}
 	for row_id := range matrix {
 		for col_id, choice := range matrix[row_id] {
 			if choice == 1 {
-				positiveChoices[SavedList[col_id]] += 1
+				positiveChoices[names[col_id]] += 1
 			} else if choice == 2 {
-				negativeChoices[SavedList[col_id]] += 1
+				negativeChoices[names[col_id]] += 1
 			}
 		}
 	}
@@ -55,8 +55,8 @@ func choiceCalc() {
 // Считаем статус на основе выборов 1-2 вопросов
 func statusCalc() {
 	status = make(map[string]string)
-	totalPpl := len(SavedList)
-	for _, name := range SavedList {
+	totalPpl := len(names)
+	for _, name := range names {
 		if float64(positiveChoices[name])/float64(totalPpl) > 0.5 {
 			status[name] = "Звезда"
 		} else if (float64(positiveChoices[name])/float64(totalPpl) > 0.25) && (float64(negativeChoices[name])/float64(totalPpl) < 0.1) {
@@ -80,7 +80,7 @@ func mutualChoicesCalc() {
 	mutualNegativeChoices = make(map[string]int)
 	mutualPositiveChoices = make(map[string]int)
 	contradictoryChoices = make(map[string]int)
-	for _, name := range SavedList {
+	for _, name := range names {
 		mutualNegativeChoices[name] = 0
 		mutualPositiveChoices[name] = 0
 		contradictoryChoices[name] = 0
@@ -88,11 +88,11 @@ func mutualChoicesCalc() {
 	for row_id := range matrix {
 		for col_id, choice := range matrix[row_id] {
 			if matrix[row_id][col_id] == matrix[col_id][row_id] && choice == 1 {
-				mutualPositiveChoices[SavedList[col_id]] += 1
+				mutualPositiveChoices[names[col_id]] += 1
 			} else if matrix[row_id][col_id] == matrix[col_id][row_id] && choice == 2 {
-				mutualNegativeChoices[SavedList[col_id]] += 1
+				mutualNegativeChoices[names[col_id]] += 1
 			} else if (matrix[row_id][col_id] != matrix[col_id][row_id]) && matrix[row_id][col_id] != 0 && matrix[col_id][row_id] != 0 {
-				contradictoryChoices[SavedList[col_id]] += 1
+				contradictoryChoices[names[col_id]] += 1
 			}
 		}
 	}
@@ -109,7 +109,7 @@ func autosociometry() error {
 		log.Println("Error getting matrix2 for calcs")
 	}
 	autosociometryInts = make(map[string]int)
-	for _, name := range SavedList {
+	for _, name := range names {
 		autosociometryInts[name] = 0
 	}
 
@@ -126,7 +126,7 @@ func autosociometry() error {
 	for row_id := range matrix2 {
 		for col_id, choice := range matrix2[row_id] {
 			if (matrix2[row_id][col_id] == matrix1[col_id][row_id]) && choice != 0 {
-				autosociometryInts[SavedList[row_id]] += 1
+				autosociometryInts[names[row_id]] += 1
 			}
 		}
 	}
@@ -160,14 +160,14 @@ func referentChoiceCalc() {
 		log.Println("Error getting matrix3 for calcs")
 	}
 	referentChoices = make(map[string]int)
-	for _, name := range SavedList {
+	for _, name := range names {
 		referentChoices[name] = 0
 	}
 
 	for row_id := range matrix {
 		for col_id, choice := range matrix[row_id] {
 			if choice == 1 {
-				referentChoices[SavedList[col_id]] += 1
+				referentChoices[names[col_id]] += 1
 			}
 		}
 	}

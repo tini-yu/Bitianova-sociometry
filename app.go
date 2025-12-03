@@ -2,10 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	service "soc_test/service"
+	"strings"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -14,6 +18,7 @@ type App struct {
 	list *service.ListService
 	matrix *service.MatrixService
 	result *service.ResultService
+	excel *service.ExcelService
 }
 
 // NewApp creates a new App application struct
@@ -22,6 +27,7 @@ func NewApp() *App {
 		list: service.NewListService(),
 		matrix: service.NewMatrixService(),
 		result: service.NewResultService(),
+		excel: service.NewExcelService(),
 	}
 }
 
@@ -58,10 +64,18 @@ func (a *App) ListExport() service.ListFile {
 	return a.list.ListExport()
 }
 
+func (a *App) SaveTestDate(date string) {
+	a.list.SaveTestDate(date)
+}
+
 //Matrix service
 
 func (a *App) SaveMatrix(filename string, data [][]int, uuid string) error {
 	return a.matrix.SaveMatrix(filename, data, uuid)
+}
+
+func (a *App) SaveOriginalMatrix(filename string, data [][]string) error {
+	return a.matrix.SaveOriginalMatrix(filename, data)
 }
 
 
@@ -85,4 +99,42 @@ func (a *App) LoadResult(filename string) (string, error) {
 
 func (a *App) CheckMatrices() bool {
 	return a.result.CheckMatrices()
+}
+
+func (a *App) CheckResults(currentUUID string) bool {
+	return a.result.CheckResults(currentUUID)
+}
+
+//Excel service
+
+func (a *App) CreateExcelFile(fullPath string) error {
+	return a.excel.CreateExcelFile(fullPath)
+}
+
+func (a *App) ShowSaveExcelDialog() (string, error) {
+    filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+        Title:                "Сохранить файл Excel",
+        DefaultFilename:      "Социометрия Битяновой.xlsx",
+        CanCreateDirectories: true,
+        Filters: []runtime.FileFilter{
+            {
+                DisplayName: "Файлы Excel (*.xlsx)",
+                Pattern:     "*.xlsx",
+            },
+        },
+    })
+
+    if err != nil {
+        return "", err
+    }
+    if filePath == "" {
+        return "", fmt.Errorf("user cancelled")
+    }
+
+    // Force .xlsx extension if missing
+    if !strings.HasSuffix(strings.ToLower(filePath), ".xlsx") {
+        filePath += ".xlsx"
+    }
+
+    return filePath, nil
 }

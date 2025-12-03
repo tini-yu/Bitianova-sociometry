@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,7 +23,7 @@ type MatrixFile struct {
 
 func (s *MatrixService) SaveMatrix(filename string, data [][]int, uuid string) error {
 	fullPath := filepath.Join(SaveDir, filename)
-	fmt.Println(fullPath)
+	// fmt.Println(fullPath)
 
 	file, err := os.Create(fullPath)
 	if err != nil {
@@ -119,4 +118,61 @@ func getMatrixUUID(filename string) (string, error) {
 	}
 
 	return matrixFile.UUID, nil
+}
+
+type originalMatrix struct {
+	Data [][]string `json:"data"`
+}
+
+func (s *MatrixService) SaveOriginalMatrix(filename string, data [][]string) error {
+	fullPath := filepath.Join(SaveDir, filename)
+	// fmt.Println(fullPath)
+
+	file, err := os.Create(fullPath)
+	if err != nil {
+		log.Printf("Error creating savefile at %s: %v", fullPath, err)
+		return err
+	}
+	defer file.Close()
+
+	payload := originalMatrix{
+		Data: data,
+	}
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(payload)
+}
+
+func getOriginalMatrix(filename string) ([][]interface{}, error) {
+	fullPath := filepath.Join(SaveDir, filename)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return nil, errors.New("save file not found")
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		log.Println("Error opening saved matrix file")
+		return nil, err
+	}
+	defer file.Close()
+
+	var originalMatrix originalMatrix
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&originalMatrix)
+	if err != nil {
+		log.Println("Error decoding saved matrix")
+		return nil, err
+	}
+
+	// Конвертирование [][]string -> [][]interface{}
+	matrixInterface := make([][]interface{}, len(originalMatrix.Data))
+	for i, row := range originalMatrix.Data {
+		matrixInterface[i] = make([]interface{}, len(row))
+		for j, v := range row {
+			matrixInterface[i][j] = v
+		}
+	}
+
+	return matrixInterface, nil
 }

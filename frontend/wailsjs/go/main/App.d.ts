@@ -4,6 +4,10 @@ import {service} from '../models';
 
 export function CheckMatrices():Promise<boolean>;
 
+export function CheckResults(arg1:string):Promise<boolean>;
+
+export function CreateExcelFile(arg1:string):Promise<void>;
+
 export function GetResults():Promise<service.Results>;
 
 export function ListAdd(arg1:string):Promise<void>;
@@ -20,4 +24,10 @@ export function LoadResult(arg1:string):Promise<string>;
 
 export function SaveMatrix(arg1:string,arg2:Array<any>,arg3:string):Promise<void>;
 
+export function SaveOriginalMatrix(arg1:string,arg2:Array<any>):Promise<void>;
+
 export function SaveResult(arg1:string,arg2:Array<any>,arg3:string):Promise<void>;
+
+export function SaveTestDate(arg1:string):Promise<void>;
+
+export function ShowSaveExcelDialog():Promise<string>;
