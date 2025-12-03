@@ -18,9 +18,13 @@ export function ListGet():Promise<Array<string>>;
 
 export function ListRemove(arg1:number):Promise<void>;
 
+export function LoadList(arg1:string):Promise<string>;
+
 export function LoadMatrix(arg1:string):Promise<string>;
 
 export function LoadResult(arg1:string):Promise<string>;
+
+export function SaveList(arg1:string):Promise<void>;
 
 export function SaveMatrix(arg1:string,arg2:Array<any>,arg3:string):Promise<void>;
 
@@ -29,5 +33,9 @@ export function SaveOriginalMatrix(arg1:string,arg2:Array<any>):Promise<void>;
 export function SaveResult(arg1:string,arg2:Array<any>,arg3:string):Promise<void>;
 
 export function SaveTestDate(arg1:string):Promise<void>;
+
+export function SetList(arg1:Array<string>):Promise<void>;
+
+export function SetSessionId(arg1:string):Promise<void>;
 
 export function ShowSaveExcelDialog():Promise<string>;

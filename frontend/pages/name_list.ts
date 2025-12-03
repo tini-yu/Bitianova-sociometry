@@ -1,7 +1,8 @@
 import "../src/style.css";
-import { ListAdd, ListGet, ListRemove, SaveTestDate } from "../wailsjs/go/main/App";
+import { ListAdd, ListGet, ListRemove, SaveTestDate, SaveList, LoadList, SetSessionId, SetList } from "../wailsjs/go/main/App";
 
 const DEBUG = true;
+const LIST_NAME = "list.json";
 
 function log(...args: any[]) { if (DEBUG) console.log("[name_list]", ...args); }
 
@@ -19,7 +20,8 @@ function showStatus(statusEl: HTMLElement, message: string, type: "success" | "e
 async function refreshNames(listEl: HTMLElement, statusEl: HTMLElement) {
   try {
     log("refreshNames() start");
-    const nameList: string[] = await ListGet();
+
+    let nameList: string[] = await ListGet();
 
     if (nameList.length === 0) {
       listEl.innerHTML = '<p class="empty">Список пуст.</p>';
@@ -42,6 +44,7 @@ async function refreshNames(listEl: HTMLElement, statusEl: HTMLElement) {
 
         try {
           await ListRemove(index);
+          await SaveList(LIST_NAME);
           await refreshNames(listEl, statusEl);
           showStatus(statusEl, "Имя удалено", "success");
         } catch (err) {
@@ -70,6 +73,19 @@ export async function init() {
     const dateInputEl = document.querySelector("#dateInput") as HTMLInputElement;
     const dateButtonEl = document.querySelector("#dateButton") as HTMLButtonElement;
 
+    async function loadList() {
+      try {
+        const savedJson: string = await LoadList(LIST_NAME);
+        const savedData = JSON.parse(savedJson) as { labels: string[]; uuid: string; date: string };
+        await SetList(savedData.labels)
+        await SetSessionId(savedData.uuid)
+        dateInputEl.value = savedData.date
+      } catch (err) {
+        alert(err)
+      }
+    }
+
+
     async function addDate() {
       const date = dateInputEl.value
       if (!date) {
@@ -78,6 +94,7 @@ export async function init() {
       }
       try {
         await SaveTestDate(date)
+        await SaveList(LIST_NAME);
         showStatus(statusEl, `Дата сохранена: ${date}`, "success");
       } catch (err) {
         showStatus(statusEl, `Неизвестная ошибка: ${err}`, "error");
@@ -97,6 +114,7 @@ export async function init() {
       }
       try {
         await ListAdd(name);
+        await SaveList(LIST_NAME);
         inputEl.value = "";
         await refreshNames(listEl, statusEl);
         showStatus(statusEl, `Добавлен(а): ${name}`, "success");
@@ -110,6 +128,7 @@ export async function init() {
       if (e.key === "Enter") addName();
     };
 
+    await loadList();
     await refreshNames(listEl, statusEl);
 
     log("init done");

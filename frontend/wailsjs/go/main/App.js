@@ -34,12 +34,20 @@ export function ListRemove(arg1) {
   return window['go']['main']['App']['ListRemove'](arg1);
 }
 
+export function LoadList(arg1) {
+  return window['go']['main']['App']['LoadList'](arg1);
+}
+
 export function LoadMatrix(arg1) {
   return window['go']['main']['App']['LoadMatrix'](arg1);
 }
 
 export function LoadResult(arg1) {
   return window['go']['main']['App']['LoadResult'](arg1);
+}
+
+export function SaveList(arg1) {
+  return window['go']['main']['App']['SaveList'](arg1);
 }
 
 export function SaveMatrix(arg1, arg2, arg3) {
@@ -56,6 +64,14 @@ export function SaveResult(arg1, arg2, arg3) {
 
 export function SaveTestDate(arg1) {
   return window['go']['main']['App']['SaveTestDate'](arg1);
+}
+
+export function SetList(arg1) {
+  return window['go']['main']['App']['SetList'](arg1);
+}
+
+export function SetSessionId(arg1) {
+  return window['go']['main']['App']['SetSessionId'](arg1);
 }
 
 export function ShowSaveExcelDialog() {

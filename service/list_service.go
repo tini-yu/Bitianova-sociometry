@@ -1,8 +1,12 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,11 +23,19 @@ var names = make([]string, 0) //not nil, but len==0
 var SavedList []string
 var NameIds map[string]int
 var SessionId string
-var TestDate time.Time
+var testDate time.Time
+var testDateString string
 
 func CreateSessionId() {
 	SessionId = uuid.NewString()
-	// log.Println("SessionId: " + SessionId)
+}
+
+func (s *ListService) SetSessionId(uuid string) {
+	SessionId = uuid
+}
+
+func (s *ListService) SetList(savedNames []string) {
+	names = savedNames
 }
 
 func (s *ListService) ListAdd(name string) error {
@@ -81,6 +93,63 @@ func (s *ListService) SaveTestDate(date string) {
 		fmt.Println("Error parsing date:", err)
 		return
 	}
-
-	TestDate = t
+	testDateString = date
+	testDate = t
 }
+
+type ListSaveFile struct {
+	Labels []string `json:"labels"`
+	UUID   string   `json:"uuid"`
+	Date   string   `json:"date"`
+}
+
+func (s *ListService) SaveList(filename string) error {
+	fullPath := filepath.Join(SaveDir, filename)
+	// fmt.Println(fullPath)
+
+	file, err := os.Create(fullPath)
+	if err != nil {
+		log.Printf("Error creating savefile at %s: %v", fullPath, err)
+		return err
+	}
+	defer file.Close()
+
+	payload := ListSaveFile {
+		Labels: names,
+		UUID: SessionId,
+		Date: testDateString,
+	}
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(payload)
+}
+
+func (s *ListService) LoadList(filename string) (string, error) {
+	fullPath := filepath.Join(SaveDir, filename)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return "{}", errors.New("save file not found")
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		log.Println("Error opening saved matrix file")
+		return "", err
+	}
+	defer file.Close()
+
+	var listSaveFile ListSaveFile
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&listSaveFile) //проверяем совпадение структуры json и MatrixFile
+	if err != nil {
+		log.Println("Error decoding saved matrix")
+		return "", err
+	}
+
+	jsonData, err := json.Marshal(listSaveFile)
+	if err != nil {
+		log.Println("Error marshalling saved matrix")
+		return "", err
+	}
+	return string(jsonData), nil
+} 

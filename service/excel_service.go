@@ -74,7 +74,7 @@ func createExcelSheet(f *excelize.File, sheetName string, sliceInterface [][]int
 		fmt.Println("ошибка заполнения даты", err)
 		return
 	}
-	err = f.SetCellValue(sheetName, "A2", TestDate)
+	err = f.SetCellValue(sheetName, "A2", testDate)
 	if err != nil {
 		fmt.Println("ошибка заполнения даты", err)
 		return
@@ -167,7 +167,7 @@ func createResultsExcelSheet(f *excelize.File, sheetName string, sliceInterface 
 		fmt.Println("ошибка заполнения даты", err)
 		return
 	}
-	err = f.SetCellValue(sheetName, "A2", TestDate)
+	err = f.SetCellValue(sheetName, "A2", testDate)
 	if err != nil {
 		fmt.Println("ошибка заполнения даты", err)
 		return

@@ -68,6 +68,23 @@ func (a *App) SaveTestDate(date string) {
 	a.list.SaveTestDate(date)
 }
 
+func (a *App) SaveList(filename string) error {
+	return a.list.SaveList(filename)
+}
+
+
+func (a *App) LoadList(filename string) (string, error) {
+	return a.list.LoadList(filename)
+}
+
+func (a *App) SetSessionId(uuid string) {
+	a.list.SetSessionId(uuid)
+}
+
+func (a *App) SetList(names []string) {
+	a.list.SetList(names)
+}
+
 //Matrix service
 
 func (a *App) SaveMatrix(filename string, data [][]int, uuid string) error {
