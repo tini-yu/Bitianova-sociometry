@@ -28,7 +28,7 @@ const COLUMN_LABELS = [
 
 const EDITABLE_COLUMN_INDEX = 8;
 
-const EDIT_OPTIONS = ["-", "+"] as const;
+const EDIT_OPTIONS = ["-", "Дети, испытывающие трудности в обучении", "Дети-сироты", "Дети с ОВЗ", "Дети с отклоняющимся поведением", "Одаренные дети"] as const;
 type EditOption = typeof EDIT_OPTIONS[number];
 
 class Matrix4 {
