@@ -79,9 +79,10 @@ export async function init() {
         const savedData = JSON.parse(savedJson) as { labels: string[]; uuid: string; date: string };
         await SetList(savedData.labels)
         await SetSessionId(savedData.uuid)
+        await SaveTestDate(savedData.date)
         dateInputEl.value = savedData.date
       } catch (err) {
-        alert(err)
+        showStatus(statusEl, `Ошибка загрузки: ${err}`, "error");
       }
     }
 

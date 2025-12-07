@@ -8,6 +8,9 @@ import {
     SaveOriginalMatrix,
     CreateExcelFile,
     ShowSaveExcelDialog,
+    ShowSaveWordDialog,
+    SaveReportFile,
+    CalculateAnalyticalReport,
 } from "../wailsjs/go/main/App";
 
 
@@ -56,7 +59,8 @@ class Matrix4 {
 
         document.getElementById("save-btn")!.onclick = () => this.save();
         document.getElementById("load-btn")!.onclick = () => this.load();
-        document.getElementById("export-btn")!.onclick = () => this.exportToExcel();
+        document.getElementById("excel-export-btn")!.onclick = () => this.exportToExcel();
+        document.getElementById("report-export-btn")!.onclick = () => this.exportReport();
 
 
         await this.load();
@@ -214,6 +218,11 @@ class Matrix4 {
             return;
         }
 
+        if (this.labels.length === 0) {
+            this.showStatus("Список имён не может быть пуст", "red");
+            return;
+        }
+
         const rows = this.labels.length;
         const data = Array.from({ length: rows }, (_, r) => [...this.matrix[r]]);
 
@@ -242,6 +251,28 @@ class Matrix4 {
 
             await CreateExcelFile(fullPath);
             this.showStatus(`Файл успешно сохранён:\n${fullPath}`, "green");
+        } catch (err) {
+            this.showStatus(`Ошибка сохранения файла: ${err}`, "red");
+        }
+    }
+
+    private async exportReport() {
+        const ok = await CheckResults(this.currentUUID);
+        if (!ok) {
+            this.showStatus("Необходимо сохранить таблицу", "red");
+            return;
+        }
+        try {
+            const fullPath = await ShowSaveWordDialog();
+
+            if (!fullPath) {
+                this.showStatus("Сохранение отменено", "grey");
+                return;
+            }
+
+            await CalculateAnalyticalReport();
+            await SaveReportFile(fullPath);
+            this.showStatus(`Аналитическая справка сохранена`, "green");
         } catch (err) {
             this.showStatus(`Ошибка сохранения файла: ${err}`, "red");
         }

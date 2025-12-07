@@ -51,7 +51,7 @@ func (s *ExcelService) CreateExcelFile(fullPath string) error {
 	createExcelSheet(file, "Вопрос 5", om3)
 	createResultsExcelSheet(file, "Результаты", res)
 
-	fmt.Println("Полный путь до файла: ", fullPath)
+	// fmt.Println("Полный путь до файла: ", fullPath)
 	if err := file.SaveAs(fullPath); err != nil {
 		fmt.Println("ошибка сохранения таблицы Excel", err)
 		return fmt.Errorf("ошибка сохранения таблицы Excel: %s", err)
@@ -62,6 +62,7 @@ func (s *ExcelService) CreateExcelFile(fullPath string) error {
 }
 
 func createExcelSheet(f *excelize.File, sheetName string, sliceInterface [][]interface{}) {
+
 	// Создать новый лист
 	_, err := f.NewSheet(sheetName)
 	if err != nil {
@@ -121,6 +122,28 @@ func createExcelSheet(f *excelize.File, sheetName string, sliceInterface [][]int
 			return
 		}
 	}
+
+	rows_slice, err := f.GetRows(sheetName)
+	lastRow := len(rows_slice)
+	cols_slice := rows_slice[lastRow-1]
+	lastColIndex := len(cols_slice)
+
+	lastCol, _ := excelize.ColumnNumberToName(lastColIndex)
+	lastCell := fmt.Sprintf("%s%d", lastCol, lastRow)
+
+	wrap_style, err := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{
+			WrapText: true,
+		},
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 1},
+			{Type: "top", Color: "000000", Style: 1},
+			{Type: "bottom", Color: "000000", Style: 1},
+			{Type: "right", Color: "000000", Style: 1},
+		},
+	})
+	f.SetCellStyle(sheetName, "C3", lastCell, wrap_style)
+
 	//настраиваем ширину колонок
 	cols, err := f.GetCols(sheetName)
 	if err != nil {
@@ -228,19 +251,34 @@ func createResultsExcelSheet(f *excelize.File, sheetName string, sliceInterface 
 		return
 	}
 
+	rows_slice, err := f.GetRows(sheetName)
+	lastRow := len(rows_slice)
+	cols_slice := rows_slice[lastRow-1]
+	lastColIndex := len(cols_slice)
+
+	lastCol, _ := excelize.ColumnNumberToName(lastColIndex)
+	lastCell := fmt.Sprintf("%s%d", lastCol, lastRow)
+
+	wrap_style, err := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{
+			WrapText: true,
+		},
+	})
+	f.SetCellStyle(sheetName, "C3", lastCell, wrap_style)
+
 	//настраиваем ширину колонок
 	cols, err := f.GetCols(sheetName)
 	if err != nil {
 		fmt.Println("ошибка корректировки ширины колонок", err)
 	}
-	for idx, col := range cols {
-		largestWidth := 10
-		for _, rowCell := range col {
-			cellWidth := utf8.RuneCountInString(rowCell) + 2 // + 2 for margin
-			if cellWidth > largestWidth {
-				largestWidth = cellWidth
-			}
-		}
+	for idx, _ := range cols {
+		largestWidth := 20
+		// for _, rowCell := range col {
+		// 	cellWidth := utf8.RuneCountInString(rowCell) + 2 // + 2 for margin
+		// 	if cellWidth > largestWidth && cellWidth <= 30 {
+		// 		largestWidth = cellWidth
+		// 	}
+		// }
 		name, err := excelize.ColumnNumberToName(idx + 1)
 		if err != nil {
 			fmt.Println("ошибка корректировки ширины колонок", err)

@@ -19,6 +19,7 @@ type App struct {
 	matrix *service.MatrixService
 	result *service.ResultService
 	excel *service.ExcelService
+	report *service.ReportService
 }
 
 // NewApp creates a new App application struct
@@ -28,6 +29,7 @@ func NewApp() *App {
 		matrix: service.NewMatrixService(),
 		result: service.NewResultService(),
 		excel: service.NewExcelService(),
+		report: service.NewReportService(),
 	}
 }
 
@@ -151,6 +153,43 @@ func (a *App) ShowSaveExcelDialog() (string, error) {
     // Force .xlsx extension if missing
     if !strings.HasSuffix(strings.ToLower(filePath), ".xlsx") {
         filePath += ".xlsx"
+    }
+
+    return filePath, nil
+}
+
+//Report service
+
+func (a *App) SaveReportFile(fullPath string) error {
+	return a.report.SaveReportFile(fullPath)
+}
+
+func (a *App) CalculateAnalyticalReport() error {
+	return a.report.CalculateAnalyticalReport()
+}
+
+func (a *App) ShowSaveWordDialog() (string, error) {
+    filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+        Title:                "Сохранить файл Docx",
+        DefaultFilename:      "Аналитическая справка.docx",
+        CanCreateDirectories: true,
+        Filters: []runtime.FileFilter{
+            {
+                DisplayName: "Файлы Docx (*.docx)",
+                Pattern:     "*.docx",
+            },
+        },
+    })
+
+    if err != nil {
+        return "", err
+    }
+    if filePath == "" {
+        return "", fmt.Errorf("user cancelled")
+    }
+
+    if !strings.HasSuffix(strings.ToLower(filePath), ".docx") {
+        filePath += ".docx"
     }
 
     return filePath, nil

@@ -25,6 +25,7 @@ var NameIds map[string]int
 var SessionId string
 var testDate time.Time
 var testDateString string
+var prettyTestDate string
 
 func CreateSessionId() {
 	SessionId = uuid.NewString()
@@ -41,7 +42,7 @@ func (s *ListService) SetList(savedNames []string) {
 func (s *ListService) ListAdd(name string) error {
 	if !current_names[name] {
 		names = append(names, name)
-		fmt.Println(names)
+		// fmt.Println(names)
 		current_names[name] = true
 	} else {
 		return fmt.Errorf("тестируемый уже в списке")
@@ -68,7 +69,7 @@ type ListFile struct {
 
 func (s *ListService) ListExport() ListFile {
 	SavedList = names
-	log.Println("List exported successfully")
+	// log.Println("List exported successfully")
 
 	return ListFile{
 		Labels: SavedList,
@@ -86,13 +87,14 @@ func getListInterface() *[]interface{} {
 }
 
 func (s *ListService) SaveTestDate(date string) {
-	dateLayout := "2006-01-02" //yyyy-mm-dd
+	inputLayout := "2006-01-02" //yyyy-mm-dd
 
-	t, err := time.Parse(dateLayout, date)
+	t, err := time.Parse(inputLayout, date)
 	if err != nil {
 		fmt.Println("Error parsing date:", err)
 		return
 	}
+	prettyTestDate = t.Format("02.01.2006")
 	testDateString = date
 	testDate = t
 }

@@ -3,6 +3,7 @@ module soc_test
 go 1.24.0
 
 require (
+	github.com/ZeroHawkeye/wordZero v1.5.0
 	github.com/google/uuid v1.6.0
 	github.com/wailsapp/wails/v2 v2.11.0
 	github.com/xuri/excelize/v2 v2.10.0

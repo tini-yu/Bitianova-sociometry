@@ -38,7 +38,7 @@ func (s *ResultService) GetResults() Results {
 
 	maps := []map[string]string{mat1, mat2, status, mat4, mat5, mat6, autosociometryChoices, mat8}
 
-	fmt.Println("SessionId: ", SessionId)
+	// fmt.Println("SessionId: ", SessionId)
 	return Results{
 		Labels: names,
 		UUID:   SessionId,
@@ -159,4 +159,28 @@ func (s *ResultService) CheckResults(currentUUID string) bool {
 
 	return false
 	
+}
+
+func getResultsAsStringSlices() ([][]string, error) {
+	fullPath := filepath.Join(SaveDir, "results.json")
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return nil, errors.New("save file not found")
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		log.Println("Error opening saved matrix file")
+		return nil, err
+	}
+	defer file.Close()
+
+	var originalMatrix originalMatrix
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&originalMatrix)
+	if err != nil {
+		log.Println("Error decoding saved matrix")
+		return nil, err
+	}
+
+	return originalMatrix.Data, nil
 }
