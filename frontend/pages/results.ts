@@ -281,7 +281,6 @@ class Matrix4 {
     private showStatus(msg: string, color: string) {
         this.statusEl.textContent = msg;
         this.statusEl.style.color = color;
-        this.statusEl.style.fontSize = "200%";
         setTimeout(() => {
             if (this.statusEl.textContent === msg) this.statusEl.textContent = "";
         }, 3000);

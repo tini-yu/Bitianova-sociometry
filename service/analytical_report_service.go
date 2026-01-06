@@ -71,7 +71,7 @@ func (s *ReportService) SaveReportFile(fullPath string) error {
 
 	listn_7 := ""
 	if len(n7.n7) == 0 {
-		listn_7 = "Референтная группа отсутсвует."
+		listn_7 = "Референтная группа отсутствует."
 		content = doc.AddNumberedList(listn_7, 0, document.ListTypeDecimal)
 	} else {
 		listn_7 = fmt.Sprintf("Референтная группа в сравнении с системой социометрических статусов:")

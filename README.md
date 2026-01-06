@@ -1,19 +1,19 @@
-# README
+# Социометрия Битяновой
 
-## About
+## О приложении
 
-This is the official Wails Vanilla-TS template.
+Данное приложение разработано для ОС Windows, на основе фреймворка Wails.
+Оно преднозначено для автоматизации анализа социометрического теста Битяновой.
+Разработано по запросу ГАУ ТО "Центр психолого-педагогической медицинской и социальной помощи"
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+## Принцип работы
 
-## Live Development
+Приложение предполагает наличие у пользователя результатов проведенного тестирования на основе социометрического метода М.Битяновой. (С соответствующей литературой можно ознакомиться здесь: https://pedlib.ru/Books/1/0413/1_0413-1.shtml#book_page_top)
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
-
-## Building
-
-To build a redistributable, production mode package, use `wails build`.
+Для грамотного использования приложения Пользователю необходимо:
+    1. Заполнить список участников тестирования.
+    2. Установить дату тестирования.
+    3. Заполнить матрицы ответов тестируемых (согласно контекстным подсказкам).
+    4. Указать целевые группы тестируемых в матрице результатов.
+    5. Экспортировать матрицы в документ MS Excel.
+    6. Экспортировать Аналитическую справку для её просмотра в формате документа MS Word.

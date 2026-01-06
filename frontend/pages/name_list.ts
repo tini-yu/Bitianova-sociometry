@@ -1,4 +1,4 @@
-import "../src/style.css";
+import "./name_list.css";
 import { ListAdd, ListGet, ListRemove, SaveTestDate, SaveList, LoadList, SetSessionId, SetList } from "../wailsjs/go/main/App";
 
 const DEBUG = true;
