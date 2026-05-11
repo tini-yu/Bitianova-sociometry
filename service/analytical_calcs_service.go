@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"log"
 )
 
 // Всего будет 7 пунктов, которые необходимо отразить в отчёте. Для каждого численного значения свой подпункт.
@@ -22,7 +23,7 @@ func (n1 *n1struct) filln1() {
 	n1.n1_1 = prettyTestDate
 	n1.n1_2 = len(names) // never 0
 	if len(names) == 0 {
-		fmt.Errorf("Список имён не должен быть пустым")
+		log.Print("Список имён не должен быть пустым")
 	}
 }
 
@@ -283,12 +284,12 @@ func (s *ReportService) CalculateAnalyticalReport() error {
 	results, err := getResultsAsStringSlices()
 	if err != nil {
 		fmt.Println(err)
-		return fmt.Errorf("Ошибка получения результатов для справки: ", err)
+		return fmt.Errorf("Ошибка получения результатов для справки: %s", err)
 	}
 	matrix1, err := getMatrix("matrix1.json")
 	if err != nil {
 		fmt.Println(err)
-		return fmt.Errorf("Ошибка подгрузки матрицы: ", err)
+		return fmt.Errorf("Ошибка подгрузки матрицы: %s", err)
 	}
 
 	n1.filln1()

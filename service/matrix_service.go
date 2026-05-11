@@ -22,7 +22,7 @@ type MatrixFile struct {
 }
 
 func (s *MatrixService) SaveMatrix(filename string, data [][]int, uuid string) error {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 	// fmt.Println(fullPath)
 
 	file, err := os.Create(fullPath)
@@ -43,7 +43,7 @@ func (s *MatrixService) SaveMatrix(filename string, data [][]int, uuid string) e
 }
 
 func (s *MatrixService) LoadMatrix(filename string) (string, error) {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return "{}", errors.New("save file not found")
@@ -73,7 +73,7 @@ func (s *MatrixService) LoadMatrix(filename string) (string, error) {
 } //стоит переделать декодинк и маршалинг обратно - в простую проверку структуры и передачу json
 
 func getMatrix(filename string) ([][]int, error) {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return nil, errors.New("save file not found")
@@ -97,7 +97,7 @@ func getMatrix(filename string) ([][]int, error) {
 }
 
 func getMatrixUUID(filename string) (string, error) {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return "", errors.New("save file not found")
@@ -125,7 +125,7 @@ type originalMatrix struct {
 }
 
 func (s *MatrixService) SaveOriginalMatrix(filename string, data [][]string) error {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 	// fmt.Println(fullPath)
 
 	file, err := os.Create(fullPath)
@@ -145,7 +145,7 @@ func (s *MatrixService) SaveOriginalMatrix(filename string, data [][]string) err
 }
 
 func getOriginalMatrix(filename string) ([][]interface{}, error) {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return nil, errors.New("save file not found")

@@ -14,22 +14,24 @@ import (
 
 // App struct
 type App struct {
-	ctx context.Context
-	list *service.ListService
-	matrix *service.MatrixService
-	result *service.ResultService
-	excel *service.ExcelService
-	report *service.ReportService
+	ctx     context.Context
+	list    *service.ListService
+	matrix  *service.MatrixService
+	result  *service.ResultService
+	excel   *service.ExcelService
+	report  *service.ReportService
+	project *service.ProjectService
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
-		list: service.NewListService(),
-		matrix: service.NewMatrixService(),
-		result: service.NewResultService(),
-		excel: service.NewExcelService(),
-		report: service.NewReportService(),
+		list:    service.NewListService(),
+		matrix:  service.NewMatrixService(),
+		result:  service.NewResultService(),
+		excel:   service.NewExcelService(),
+		report:  service.NewReportService(),
+		project: service.NewProjectService(),
 	}
 }
 
@@ -46,10 +48,13 @@ func (a *App) startup(ctx context.Context) {
 		log.Fatal("Не удалось создать директорию сохранений:", err)
 	}
 
+	service.ProjectDir = filepath.Join(service.SaveDir, "Проект для примера")
+	if err := os.MkdirAll(service.ProjectDir, 0755); err != nil {
+		log.Fatal("Не удалось создать директорию сохранений:", err)
+	}
 }
 
-
-//List service
+// List service
 func (a *App) ListAdd(name string) error {
 	return a.list.ListAdd(name)
 }
@@ -74,7 +79,6 @@ func (a *App) SaveList(filename string) error {
 	return a.list.SaveList(filename)
 }
 
-
 func (a *App) LoadList(filename string) (string, error) {
 	return a.list.LoadList(filename)
 }
@@ -87,8 +91,7 @@ func (a *App) SetList(names []string) {
 	a.list.SetList(names)
 }
 
-//Matrix service
-
+// Matrix service
 func (a *App) SaveMatrix(filename string, data [][]int, uuid string) error {
 	return a.matrix.SaveMatrix(filename, data, uuid)
 }
@@ -96,7 +99,6 @@ func (a *App) SaveMatrix(filename string, data [][]int, uuid string) error {
 func (a *App) SaveOriginalMatrix(filename string, data [][]string) error {
 	return a.matrix.SaveOriginalMatrix(filename, data)
 }
-
 
 func (a *App) LoadMatrix(filename string) (string, error) {
 	return a.matrix.LoadMatrix(filename)
@@ -124,42 +126,39 @@ func (a *App) CheckResults(currentUUID string) bool {
 	return a.result.CheckResults(currentUUID)
 }
 
-//Excel service
-
+// Excel service
 func (a *App) CreateExcelFile(fullPath string) error {
 	return a.excel.CreateExcelFile(fullPath)
 }
 
 func (a *App) ShowSaveExcelDialog() (string, error) {
-    filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-        Title:                "Сохранить файл Excel",
-        DefaultFilename:      "Социометрия Битяновой.xlsx",
-        CanCreateDirectories: true,
-        Filters: []runtime.FileFilter{
-            {
-                DisplayName: "Файлы Excel (*.xlsx)",
-                Pattern:     "*.xlsx",
-            },
-        },
-    })
+	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:                "Сохранить файл Excel",
+		DefaultFilename:      "Социометрия Битяновой.xlsx",
+		CanCreateDirectories: true,
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Файлы Excel (*.xlsx)",
+				Pattern:     "*.xlsx",
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if filePath == "" {
+		return "", fmt.Errorf("user cancelled")
+	}
 
-    if err != nil {
-        return "", err
-    }
-    if filePath == "" {
-        return "", fmt.Errorf("user cancelled")
-    }
+	// Force .xlsx extension if missing
+	if !strings.HasSuffix(strings.ToLower(filePath), ".xlsx") {
+		filePath += ".xlsx"
+	}
 
-    // Force .xlsx extension if missing
-    if !strings.HasSuffix(strings.ToLower(filePath), ".xlsx") {
-        filePath += ".xlsx"
-    }
-
-    return filePath, nil
+	return filePath, nil
 }
 
-//Report service
-
+// Report service
 func (a *App) SaveReportFile(fullPath string) error {
 	return a.report.SaveReportFile(fullPath)
 }
@@ -169,28 +168,45 @@ func (a *App) CalculateAnalyticalReport() error {
 }
 
 func (a *App) ShowSaveWordDialog() (string, error) {
-    filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-        Title:                "Сохранить файл Docx",
-        DefaultFilename:      "Аналитическая справка.docx",
-        CanCreateDirectories: true,
-        Filters: []runtime.FileFilter{
-            {
-                DisplayName: "Файлы Docx (*.docx)",
-                Pattern:     "*.docx",
-            },
-        },
-    })
+	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:                "Сохранить файл Docx",
+		DefaultFilename:      "Аналитическая справка.docx",
+		CanCreateDirectories: true,
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Файлы Docx (*.docx)",
+				Pattern:     "*.docx",
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if filePath == "" {
+		return "", fmt.Errorf("user cancelled")
+	}
 
-    if err != nil {
-        return "", err
-    }
-    if filePath == "" {
-        return "", fmt.Errorf("user cancelled")
-    }
+	if !strings.HasSuffix(strings.ToLower(filePath), ".docx") {
+		filePath += ".docx"
+	}
 
-    if !strings.HasSuffix(strings.ToLower(filePath), ".docx") {
-        filePath += ".docx"
-    }
+	return filePath, nil
+}
 
-    return filePath, nil
+// Project service
+
+func (a *App) CreateProject(folderName string) error {
+	return a.project.CreateProject(folderName)
+}
+
+func (a *App) GetProjectList() []string {
+	return a.project.GetProjectList()
+}
+
+func (a *App) DeleteProject(folderName string) error {
+	return a.project.DeleteProject(folderName)
+}
+
+func (a *App) ChangeProjectDir(folderName string) string {
+	return a.project.ChangeProjectDir(folderName)
 }

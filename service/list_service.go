@@ -106,7 +106,7 @@ type ListSaveFile struct {
 }
 
 func (s *ListService) SaveList(filename string) error {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 	// fmt.Println(fullPath)
 
 	file, err := os.Create(fullPath)
@@ -128,9 +128,10 @@ func (s *ListService) SaveList(filename string) error {
 }
 
 func (s *ListService) LoadList(filename string) (string, error) {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		s.SaveList("list.json") //Поменять название на изменяемую переменную
 		return "{}", errors.New("save file not found")
 	}
 	file, err := os.Open(fullPath)

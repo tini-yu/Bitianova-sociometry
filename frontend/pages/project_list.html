@@ -1,0 +1,35 @@
+<div class="project-list">
+    <div class="headlist">
+        <h2>Список проектов</h2>
+        <div id="projectList" class="list"></div>
+    </div>
+    <div class="input-group">
+        <button id="loadButton">Загрузить проект</button>
+        <button id="createButton">Создать новый проект</button>
+        <button id="deleteButton">Удалить проект</button>
+    </div>
+    <div id="status" class="status"></div>
+    <div id="createProjectModal" class="modal">
+        <div class="modal-content">
+            <h3>Создать новый проект</h3>
+            <input type="text" id="newProjectName" placeholder="Введите имя проекта" autocomplete="off">
+
+            <div class="modal-buttons">
+                <button id="cancelCreateBtn" class="cancel-btn">Отмена</button>
+                <button id="confirmCreateBtn" class="confirm-btn">Создать</button>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteProjectModal" class="modal">
+        <div class="modal-content delete-modal">
+            <h3>Подтверждение удаления</h3>
+            <p id="deleteConfirmText">Вы действительно хотите удалить проект?</p>
+
+            <div class="modal-buttons">
+                <button id="cancelDeleteBtn" class="cancel-btn">Отмена</button>
+                <button id="confirmDeleteBtn" class="delete-confirm-btn">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -62,7 +62,7 @@ type ResultFile struct {
 
 func (s *ResultService) SaveResult(filename string, data [][]string, uuid string) error {
 
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 	fmt.Println(fullPath)
 
 	file, err := os.Create(fullPath)
@@ -83,7 +83,7 @@ func (s *ResultService) SaveResult(filename string, data [][]string, uuid string
 }
 
 func (s *ResultService) LoadResult(filename string) (string, error) {
-	fullPath := filepath.Join(SaveDir, filename)
+	fullPath := filepath.Join(ProjectDir, filename)
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return "", errors.New("save file not found")
 	}
@@ -132,7 +132,7 @@ func (s *ResultService) CheckMatrices() bool {
 }
 // Проверяем что текущее сохранение актуально.
 func (s *ResultService) CheckResults(currentUUID string) bool {
-	fullPath := filepath.Join(SaveDir, "results.json")
+	fullPath := filepath.Join(ProjectDir, "results.json")
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		fmt.Println(err)
@@ -162,7 +162,7 @@ func (s *ResultService) CheckResults(currentUUID string) bool {
 }
 
 func getResultsAsStringSlices() ([][]string, error) {
-	fullPath := filepath.Join(SaveDir, "results.json")
+	fullPath := filepath.Join(ProjectDir, "results.json")
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return nil, errors.New("save file not found")

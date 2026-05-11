@@ -66,8 +66,8 @@ button:hover {
   /*контейнер для каждого имени в списке*/
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 8px;
+  align-items: flex-start;
+  padding: 8px 8px 0px 8px;
   background: #e3f2fd;
   border-radius: 8px;
   margin: 6px 0;
@@ -76,13 +76,13 @@ button:hover {
 .word-text {
   /*текст каждого имени в списке*/
   font-weight: 500;
+  padding-top: 3px;
 }
 
 .delete-btn {
   /*Кнопка удаления для каждого имени в списке*/
-  background: #e53935;
+  background: red;
   color: white;
-  border: none;
   width: 28px;
   height: 28px;
   border-radius: 5%;
@@ -94,7 +94,7 @@ button:hover {
 }
 
 .delete-btn:hover {
-  background: #d32f2f;
+  background: #af2626;
 }
 
 .empty {

@@ -76,7 +76,6 @@ h1 {
 
 /* Диагональ */
 td.diagonal {
-    background: #222;
     color: #aaa;
     font-weight: bold;
 }
@@ -91,8 +90,8 @@ td.diagonal {
 
 /*Контейнер выбора опций в клетках*/
 select {
-    width: 90px;
-    padding: 4px;
+    width: 114px;
+    padding: 2px;
     font-size: 1rem;
 }
 
@@ -127,7 +126,7 @@ button:hover {
   background: #0e6b33;
 }
 
-/*Форматирование стутуса (по умолчанию)*/
+/*Форматирование статуса (по умолчанию)*/
 #matrix-status {
   margin-top: 1rem;
   text-align: center;

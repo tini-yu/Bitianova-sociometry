@@ -44,7 +44,7 @@ func (s *ReportService) SaveReportFile(fullPath string) error {
 	content = doc.AddBulletList(n2_3, 1, document.BulletTypeDash)
 	content = doc.AddBulletList(n2_4, 1, document.BulletTypeDash)
 
-	listn_3 := fmt.Sprintf("2.	%.1f%% имеют 3 и более взаимных выбора, из них %.1f%% положительных, - %.1f%% - отрицательных.",
+	listn_3 := fmt.Sprintf("%.1f%% имеют 3 и более взаимных выбора, из них %.1f%% положительных, - %.1f%% - отрицательных.",
 		n3.n3_1, n3.n3_2, n3.n3_3)
 	content = doc.AddNumberedList(listn_3, 0, document.ListTypeDecimal)
 
@@ -74,7 +74,7 @@ func (s *ReportService) SaveReportFile(fullPath string) error {
 		listn_7 = "Референтная группа отсутствует."
 		content = doc.AddNumberedList(listn_7, 0, document.ListTypeDecimal)
 	} else {
-		listn_7 = fmt.Sprintf("Референтная группа в сравнении с системой социометрических статусов:")
+		listn_7 = "Референтная группа в сравнении с системой социометрических статусов:"
 		content = doc.AddNumberedList(listn_7, 0, document.ListTypeDecimal)
 
 		for _, val := range n7.n7 {

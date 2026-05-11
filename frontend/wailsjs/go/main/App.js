@@ -6,6 +6,10 @@ export function CalculateAnalyticalReport() {
   return window['go']['main']['App']['CalculateAnalyticalReport']();
 }
 
+export function ChangeProjectDir(arg1) {
+  return window['go']['main']['App']['ChangeProjectDir'](arg1);
+}
+
 export function CheckMatrices() {
   return window['go']['main']['App']['CheckMatrices']();
 }
@@ -16,6 +20,18 @@ export function CheckResults(arg1) {
 
 export function CreateExcelFile(arg1) {
   return window['go']['main']['App']['CreateExcelFile'](arg1);
+}
+
+export function CreateProject(arg1) {
+  return window['go']['main']['App']['CreateProject'](arg1);
+}
+
+export function DeleteProject(arg1) {
+  return window['go']['main']['App']['DeleteProject'](arg1);
+}
+
+export function GetProjectList() {
+  return window['go']['main']['App']['GetProjectList']();
 }
 
 export function GetResults() {

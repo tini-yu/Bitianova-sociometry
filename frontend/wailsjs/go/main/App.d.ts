@@ -4,11 +4,19 @@ import {service} from '../models';
 
 export function CalculateAnalyticalReport():Promise<void>;
 
+export function ChangeProjectDir(arg1:string):Promise<string>;
+
 export function CheckMatrices():Promise<boolean>;
 
 export function CheckResults(arg1:string):Promise<boolean>;
 
 export function CreateExcelFile(arg1:string):Promise<void>;
+
+export function CreateProject(arg1:string):Promise<void>;
+
+export function DeleteProject(arg1:string):Promise<void>;
+
+export function GetProjectList():Promise<Array<string>>;
 
 export function GetResults():Promise<service.Results>;
 

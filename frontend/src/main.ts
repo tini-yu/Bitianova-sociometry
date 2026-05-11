@@ -19,23 +19,23 @@ async function loadPage(pageName: string): Promise<void> {
 
     // путь до html страниц
     const htmlPath = `../pages/${pageName}.html`;
-    
+
     if (!htmlModules[htmlPath]) {
-        throw new Error(`HTML file not found: ${htmlPath}`);
+      throw new Error(`HTML file not found: ${htmlPath}`);
     }
 
     // функция импорта для получения контента
-    const htmlContent = await htmlModules[htmlPath](); 
+    const htmlContent = await htmlModules[htmlPath]();
     container.innerHTML = htmlContent;
 
     const scriptPath = `../pages/${pageName}.ts`;
 
     if (scriptModules[scriptPath]) {
-        const module: any = await scriptModules[scriptPath]();
-        //init вызывается при каждом переходе на страницу
-        if (module.init && typeof module.init === 'function') {
-            module.init();
-        }
+      const module: any = await scriptModules[scriptPath]();
+      //init вызывается при каждом переходе на страницу
+      if (module.init && typeof module.init === 'function') {
+        module.init();
+      }
     }
 
     // менюшка
@@ -57,12 +57,12 @@ function setupMenuHandlers(): void {
     link.addEventListener("click", (e: Event) => {
       e.preventDefault();
       const page = (link as PageLink).dataset.page;
-      if(page) loadPage(page);
+      if (page) loadPage(page);
     });
   });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   setupMenuHandlers();
-  loadPage("name_list");
+  loadPage("project_list");
 });
