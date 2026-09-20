@@ -5,28 +5,32 @@ import (
 	"log"
 )
 
-//Работаем с социометрией
+// Работаем с социометрией
 // Вопр. 1-2 = matrix1; Вопр. 3-4 = matrix2; Вопр.5 = matrix3
-//1 = позитив (1 вопр), 2 = негатив (2 вопр), 0 = нет выбора
+// 1 = позитив (1 вопр), 2 = негатив (2 вопр), 0 = нет выбора
 // Пример матрицы:
 // [[0, 1],
 //  [1, 1]]
 // Так Matrix[0] = первая строка (не колонка)
 
-var positiveChoices map[string]int
-var negativeChoices map[string]int
-var status map[string]string
-var mutualNegativeChoices map[string]int
-var mutualPositiveChoices map[string]int
-var contradictoryChoices map[string]int
-var autosociometryInts map[string]int
-var autosociometryChoices map[string]string
-var referentChoices map[string]int
+var (
+	positiveChoices       map[string]int
+	negativeChoices       map[string]int
+	status                map[string]string
+	mutualNegativeChoices map[string]int
+	mutualPositiveChoices map[string]int
+	contradictoryChoices  map[string]int
+	autosociometryInts    map[string]int
+	autosociometryChoices map[string]string
+	referentChoices       map[string]int
+)
 
 // Названия файлов сохранения
-var M1 string = "matrix1.json"
-var M2 string = "matrix2.json"
-var M3 string = "matrix3.json"
+var (
+	M1 string = "matrix1.json"
+	M2 string = "matrix2.json"
+	M3 string = "matrix3.json"
+)
 
 // Считаем сколько раз человека выбрали другие
 func choiceCalc() {
@@ -66,12 +70,12 @@ func statusCalc() {
 		} else if positiveChoices[name] == 0 && negativeChoices[name] == 0 {
 			status[name] = "Изолированные"
 		} else {
-			status[name] = "Не определено"
+			status[name] = "Принятые" // Заменено с "Не определено" на "Принятые" 20.09.2026
 		}
 	}
 }
 
-//Считаем взаимные (и противоречивые) выборы на основе вопр. 1-2
+// Считаем взаимные (и противоречивые) выборы на основе вопр. 1-2
 func mutualChoicesCalc() {
 	matrix, err := getMatrix(M1)
 	if err != nil {
@@ -98,7 +102,7 @@ func mutualChoicesCalc() {
 	}
 }
 
-//Считаем аутосоциометрию количественно для каждого тестируемого
+// Считаем аутосоциометрию количественно для каждого тестируемого
 func autosociometry() error {
 	matrix1, err := getMatrix(M1)
 	if err != nil {
@@ -113,7 +117,7 @@ func autosociometry() error {
 		autosociometryInts[name] = 0
 	}
 
-	//Сначала проверим совпадение размеров матриц, для предотвращения ошибок
+	// Сначала проверим совпадение размеров матриц, для предотвращения ошибок
 	if len(matrix1) != len(matrix2) {
 		return errors.New("cannot calculate autosociometry: different size matrices")
 	} else if len(matrix1) <= 1 {
@@ -134,7 +138,7 @@ func autosociometry() error {
 	return nil
 }
 
-//переводим численные значения аутосоциометрии в статус
+// переводим численные значения аутосоциометрии в статус
 func autosociometryCalc() {
 	autosociometryChoices = make(map[string]string)
 	err := autosociometry()
@@ -153,7 +157,7 @@ func autosociometryCalc() {
 	}
 }
 
-//Считаем кол-во референтных выборов (сколько раз человека выбрали в вопр.5)
+// Считаем кол-во референтных выборов (сколько раз человека выбрали в вопр.5)
 func referentChoiceCalc() {
 	matrix, err := getMatrix(M3)
 	if err != nil {

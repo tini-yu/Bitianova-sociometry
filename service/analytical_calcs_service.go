@@ -1,17 +1,19 @@
 package service
 
 import (
+	"cmp"
 	"fmt"
-	"math"
-	"strconv"
 	"log"
+	"math"
+	"slices"
+	"strconv"
 )
 
 // Всего будет 7 пунктов, которые необходимо отразить в отчёте. Для каждого численного значения свой подпункт.
 
 type n1struct struct {
-	n1_1 string //date
-	n1_2 int    //кол-во участников диагностики
+	n1_1 string // date
+	n1_2 int    // кол-во участников диагностики
 	// n1_3 int //кол-во человек в классе
 }
 
@@ -28,13 +30,20 @@ func (n1 *n1struct) filln1() {
 }
 
 type n2struct struct {
-	n2_1_1 float64
-	n2_1_2 float64
-	n2_1_3 float64
-	n2_1_4 float64
-	n2_2   float64
-	n2_3   float64
-	n2_4   float64
+	n2_1_1   float64 // Процент
+	n2_1_1_p int     // Кол-во человек
+	n2_1_2   float64
+	n2_1_2_p int
+	n2_1_3   float64
+	n2_1_3_p int
+	n2_1_4   float64
+	n2_1_4_p int
+	n2_2     float64
+	n2_2_p   int
+	n2_3     float64
+	n2_3_p   int
+	n2_4     float64
+	n2_4_p   int
 }
 
 var n2 n2struct
@@ -59,7 +68,7 @@ func (n2 *n2struct) filln2(results [][]string) {
 		case "Популярные":
 			acceptedPeople += 1
 			popular += 1
-		case "Не определено":
+		case "Принятые": // До 20.09.2026 был "Не определено"
 			acceptedPeople += 1
 			undefined += 1
 		case "Отверженные":
@@ -80,35 +89,49 @@ func (n2 *n2struct) filln2(results [][]string) {
 	}
 
 	n2.n2_1_1 = math.RoundToEven(float64(acceptedPeople)*1000/float64(total)) / 10
+	n2.n2_1_1_p = acceptedPeople
 	n2.n2_1_4 = math.RoundToEven(float64(notAcceptedPeople)*1000/float64(total)) / 10
+	n2.n2_1_4_p = notAcceptedPeople
 	if acceptedPeople != 0 {
 		n2.n2_1_2 = math.RoundToEven(float64(stars)*1000/float64(acceptedPeople)) / 10
+		n2.n2_1_2_p = stars
 		n2.n2_1_3 = math.RoundToEven(float64(popular)*1000/float64(acceptedPeople)) / 10
+		n2.n2_1_3_p = popular
 	} else {
 		n2.n2_1_2 = 0
+		n2.n2_1_2_p = 0
 		n2.n2_1_3 = 0
+		n2.n2_1_3_p = 0
 	}
 	if notAcceptedPeople != 0 {
 		n2.n2_2 = math.RoundToEven(float64(rejected)*1000/float64(notAcceptedPeople)) / 10
+		n2.n2_2_p = rejected
 		n2.n2_3 = math.RoundToEven(float64(isolated)*1000/float64(notAcceptedPeople)) / 10
+		n2.n2_3_p = isolated
 		n2.n2_4 = math.RoundToEven(float64(focusGroupRejected)*1000/float64(notAcceptedPeople)) / 10
+		n2.n2_4_p = focusGroupRejected
 	} else {
 		n2.n2_2 = 0
+		n2.n2_2_p = 0
 		n2.n2_3 = 0
+		n2.n2_3_p = 0
 		n2.n2_4 = 0
+		n2.n2_4_p = 0
 	}
 }
 
 type n3struct struct {
-	n3_1 float64
-	n3_2 float64
-	n3_3 float64
+	n3_1   float64
+	n3_1_p int
+	n3_2   float64
+	n3_2_p int
+	n3_3   float64
+	n3_3_p int
 }
 
 var n3 n3struct
 
 func (n3 *n3struct) filln3(results [][]string) {
-
 	total := n1.n1_2
 
 	mutualPeopleTotal := 0
@@ -136,20 +159,27 @@ func (n3 *n3struct) filln3(results [][]string) {
 		}
 
 		n3.n3_1 = math.RoundToEven(float64(mutualPeopleTotal)*1000/float64(total)) / 10
+		n3.n3_1_p = mutualPeopleTotal
 		if mutualPeopleTotal != 0 {
 			n3.n3_2 = math.RoundToEven(float64(mutualPositiveTotal)*1000/float64(mutualPeopleTotal)) / 10
+			n3.n3_2_p = mutualPositiveTotal
 			n3.n3_3 = math.RoundToEven(float64(mutualNegativeTotal)*1000/float64(mutualPeopleTotal)) / 10
+			n3.n3_3_p = mutualNegativeTotal
 		} else {
 			n3.n3_2 = 0
-			n3.n3_3 = 0			
+			n3.n3_2_p = 0
+			n3.n3_3 = 0
+			n3.n3_3_p = 0
 		}
 
 	}
 }
 
 type n4struct struct {
-	n4_1 float64
-	n4_2 float64
+	n4_1   float64
+	n4_1_p int
+	n4_2   float64
+	n4_2_p int
 }
 
 var n4 n4struct
@@ -182,25 +212,34 @@ func (n4 *n4struct) filln4(results [][]string, matrix1 [][]int) {
 	}
 
 	n4.n4_1 = math.RoundToEven(float64(contradictory)*1000/float64(total)) / 10
+	n4.n4_1_p = contradictory
 	if contradictory != 0 {
 		n4.n4_2 = math.RoundToEven(float64(contradictoryPositive)*1000/float64(contradictory)) / 10
+		n4.n4_2_p = contradictoryPositive
 	} else {
 		n4.n4_2 = 0
+		n4.n4_2_p = 0
 	}
 }
 
 type n56struct struct {
-	n5_1 float64
-	n5_2 float64
-	n6_1 float64
-	n6_2 float64
-	n6_3 float64
-	n6_4 float64
+	n5_1   float64
+	n5_1_p int
+	n5_2   float64
+	n5_2_p int
+	n6_1   float64
+	n6_1_p int
+	n6_2   float64
+	n6_2_p int
+	n6_3   float64
+	n6_3_p int
+	n6_4   float64
+	n6_4_p int
 }
 
 var n56 n56struct
 
-func (n56 *n56struct,) filln56(results [][]string) {
+func (n56 *n56struct) filln56(results [][]string) {
 	total := n1.n1_2
 	adeq := 0
 	adeqRejected := 0
@@ -225,25 +264,34 @@ func (n56 *n56struct,) filln56(results [][]string) {
 				}
 			} else {
 				unadeqAccepted += 1
-			}	
+			}
 		}
 	}
 
 	n56.n5_1 = math.RoundToEven(float64(adeq)*1000/float64(total)) / 10
+	n56.n5_1_p = adeq
 	if adeq != 0 {
 		n56.n5_2 = math.RoundToEven(float64(adeqRejected)*1000/float64(adeq)) / 10
+		n56.n5_2_p = adeqRejected
 	} else {
 		n56.n5_2 = 0
 	}
 	n56.n6_1 = math.RoundToEven(float64(unadeq)*1000/float64(total)) / 10
+	n56.n6_1_p = unadeq
 	if unadeq != 0 {
 		n56.n6_2 = math.RoundToEven(float64(unadeqFocus)*1000/float64(unadeq)) / 10
+		n56.n6_2_p = unadeqFocus
 		n56.n6_3 = math.RoundToEven(float64(unadeqRejected)*1000/float64(unadeq)) / 10
+		n56.n6_3_p = unadeqRejected
 		n56.n6_4 = math.RoundToEven(float64(unadeqAccepted)*1000/float64(unadeq)) / 10
+		n56.n6_4_p = unadeqAccepted
 	} else {
 		n56.n6_2 = 0
+		n56.n6_2_p = 0
 		n56.n6_3 = 0
+		n56.n6_3_p = 0
 		n56.n6_4 = 0
+		n56.n6_4_p = 0
 	}
 }
 
@@ -258,26 +306,41 @@ func (n7 *n7struct) filln7(results [][]string) {
 	refNames := []string{}
 	refResults := []string{}
 
+	id_refN := [][]int{} // [[id, refN]] - где id - индекс имени человека в refNames,
+
+	// Для сортировки по кол-ву реф. выборов заведем третий слайс с индексами|выборами [][]int
+	// Отсортируем по кол-ву выборов, а потом используем индексы, чтобы составить список6 Имя - результат
+
 	for row_id, row := range results {
 		ref, err := strconv.Atoi(row[7])
 		if err != nil {
 			fmt.Println(err)
 		}
-		if float64(ref) > (float64(total)*0.25) {
+		if float64(ref) > (float64(total) * 0.25) {
 			refNames = append(refNames, names[row_id])
 			if row[2] == "Звезда" || row[2] == "Популярные" {
 				refResults = append(refResults, "Совпадает")
 			} else {
 				refResults = append(refResults, "Не совпадает")
 			}
+			// Пополняем список для сорта
+			refNames_id := len(refNames) - 1
+			id_refN = append(id_refN, []int{refNames_id, ref})
 		}
 	}
 
+	// Сортируем
+	slices.SortFunc(id_refN, func(a, b []int) int {
+		return cmp.Compare(a[1], b[1])
+	})
+	slices.Reverse(id_refN)
+
 	parts := make([]string, 0, len(refNames))
-    for i := 0; i < len(refNames) && i < len(refResults); i++ {
-        parts = append(parts, refNames[i]+" - "+refResults[i])
-    }
-    n7.n7 = parts
+	for _, id_ref := range id_refN {
+		parts = append(parts, refNames[id_ref[0]]+" - "+refResults[id_ref[0]])
+	}
+
+	n7.n7 = parts
 }
 
 func (s *ReportService) CalculateAnalyticalReport() error {
@@ -297,7 +360,7 @@ func (s *ReportService) CalculateAnalyticalReport() error {
 	n3.filln3(results)
 	n4.filln4(results, matrix1)
 	n56.filln56(results)
-	n7.filln7(results) //может быть ""
+	n7.filln7(results) // может быть ""
 
 	return nil
 }
