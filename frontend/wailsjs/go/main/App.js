@@ -18,6 +18,10 @@ export function CheckResults(arg1) {
   return window['go']['main']['App']['CheckResults'](arg1);
 }
 
+export function ConvertNameToProjectDir(arg1) {
+  return window['go']['main']['App']['ConvertNameToProjectDir'](arg1);
+}
+
 export function CreateExcelFile(arg1) {
   return window['go']['main']['App']['CreateExcelFile'](arg1);
 }
@@ -30,12 +34,24 @@ export function DeleteProject(arg1) {
   return window['go']['main']['App']['DeleteProject'](arg1);
 }
 
+export function DetermineSessionId() {
+  return window['go']['main']['App']['DetermineSessionId']();
+}
+
+export function GetExpectedProjectDir() {
+  return window['go']['main']['App']['GetExpectedProjectDir']();
+}
+
 export function GetProjectList() {
   return window['go']['main']['App']['GetProjectList']();
 }
 
 export function GetResults() {
   return window['go']['main']['App']['GetResults']();
+}
+
+export function IsExistProjectDir(arg1) {
+  return window['go']['main']['App']['IsExistProjectDir'](arg1);
 }
 
 export function ListAdd(arg1) {
@@ -46,16 +62,16 @@ export function ListExport() {
   return window['go']['main']['App']['ListExport']();
 }
 
-export function ListGet() {
-  return window['go']['main']['App']['ListGet']();
-}
-
 export function ListRemove(arg1) {
   return window['go']['main']['App']['ListRemove'](arg1);
 }
 
 export function LoadList(arg1) {
   return window['go']['main']['App']['LoadList'](arg1);
+}
+
+export function LoadListNames(arg1) {
+  return window['go']['main']['App']['LoadListNames'](arg1);
 }
 
 export function LoadMatrix(arg1) {

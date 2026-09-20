@@ -52,6 +52,12 @@ func (a *App) startup(ctx context.Context) {
 	if err := os.MkdirAll(service.ProjectDir, 0755); err != nil {
 		log.Fatal("Не удалось создать директорию сохранений:", err)
 	}
+
+	// Копируем пример проекта
+	if err := service.CopyEmbeddedExample(); err != nil {
+		log.Printf("Предупреждение: не удалось создать пример проекта: %v", err)
+		// Не падаем, чтобы приложение всё равно запустилось
+	}
 }
 
 // List service
@@ -59,9 +65,9 @@ func (a *App) ListAdd(name string) error {
 	return a.list.ListAdd(name)
 }
 
-func (a *App) ListGet() []string {
-	return a.list.ListGet()
-}
+// func (a *App) ListGet() []string {
+// 	return a.list.ListGet()
+// }
 
 func (a *App) ListRemove(id int) {
 	a.list.ListRemove(id)
@@ -81,6 +87,10 @@ func (a *App) SaveList(filename string) error {
 
 func (a *App) LoadList(filename string) (string, error) {
 	return a.list.LoadList(filename)
+}
+
+func (a *App) LoadListNames(filename string) ([]string, error) {
+	return a.list.LoadListNames(filename)
 }
 
 func (a *App) SetSessionId(uuid string) {
@@ -209,4 +219,20 @@ func (a *App) DeleteProject(folderName string) error {
 
 func (a *App) ChangeProjectDir(folderName string) string {
 	return a.project.ChangeProjectDir(folderName)
+}
+
+func (a *App) DetermineSessionId() string {
+	return a.project.DetermineSessionId()
+}
+
+func (a *App) IsExistProjectDir(dirname string) bool {
+	return a.project.IsExistProjectDir(dirname)
+}
+
+func (a *App) GetExpectedProjectDir() string {
+	return a.project.GetExpectedProjectDir()
+}
+
+func (a *App) ConvertNameToProjectDir(nameDir string) string {
+	return a.project.ConvertNameToProjectDir(nameDir)
 }

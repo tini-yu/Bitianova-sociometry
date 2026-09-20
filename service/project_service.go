@@ -63,9 +63,42 @@ func (s *ProjectService) DeleteProject(folderName string) error {
 }
 
 func (s *ProjectService) ChangeProjectDir(folderName string) string {
-	fmt.Println(folderName, ProjectDir)
+	// fmt.Println(folderName, ProjectDir)
 
 	ProjectDir = filepath.Join(SaveDir, folderName)
 
 	return ProjectDir
+}
+
+//Вычисляет id сессии из списка имен
+func (s *ProjectService) DetermineSessionId() string {
+	sID, err := LoadSessionId(ProjectDir)
+	if err != nil {
+		fmt.Printf("Не удалось определить id сессии")
+		return ""
+	}
+
+	return sID
+}
+
+func (s *ProjectService) GetExpectedProjectDir() string {
+	return ProjectDir
+}
+
+func (s *ProjectService) ConvertNameToProjectDir(dirName string) string {
+	return filepath.Join(SaveDir, dirName)
+}
+
+
+func (s *ProjectService) IsExistProjectDir(dirname string) bool {
+	// expected := s.GetExpectedProjectDir()
+	fullDirName := filepath.Join(SaveDir, dirname)
+	// if fullDirName != expected {
+	// 	fmt.Println("Ожидаемая директория проекта: ", expected,"Полученная:", dirname)
+	// }
+	if _, err := os.Stat(fullDirName); os.IsNotExist(err) {
+		fmt.Println(fullDirName, "не существует")
+		return false
+	}
+	return true
 }

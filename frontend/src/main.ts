@@ -1,4 +1,5 @@
 import "./style.css";
+import { initMenuState } from "./menu_state";
 
 interface PageLink extends HTMLElement {
   dataset: {
@@ -64,5 +65,6 @@ function setupMenuHandlers(): void {
 
 document.addEventListener("DOMContentLoaded", () => {
   setupMenuHandlers();
+  initMenuState();
   loadPage("project_list");
 });

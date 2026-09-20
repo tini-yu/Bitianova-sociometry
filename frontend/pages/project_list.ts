@@ -1,5 +1,6 @@
 import "./project_list.css";
-import { GetProjectList, ChangeProjectDir, CreateProject, DeleteProject } from "../wailsjs/go/main/App";
+import { GetProjectList, ChangeProjectDir, CreateProject, DeleteProject, IsExistProjectDir, GetExpectedProjectDir, ConvertNameToProjectDir } from "../wailsjs/go/main/App";
+import { setProjectLoaded } from "../src/menu_state"
 
 class ProjectApp {
     private listEl!: HTMLDivElement;
@@ -68,7 +69,7 @@ class ProjectApp {
 
     private handleLoadClick() {
         if (!this.selectedElement) {
-            this.showStatus("Сначала выберите проект!", "red");
+            this.showStatus("Необходимо выбрать проект", "red");
             return;
         }
 
@@ -84,14 +85,36 @@ class ProjectApp {
 
     private async loadProject(projectName: string) {
         try {
-            this.showStatus(`Загрузка проекта "${projectName}"...`, "blue");
-            let dir: string = await ChangeProjectDir(projectName);
-            this.showStatus(`Проект "${projectName}" успешно загружен из "${dir}"`, "green");
+            const exists = await IsExistProjectDir(projectName);
+
+            if (!exists) {
+                this.showStatus(`Директория проекта "${projectName}" не найдена`, "red");
+                setProjectLoaded(false);   // ← глобально
+                return;
+            }
+
+            const pname: string = await ChangeProjectDir(projectName);
+            console.log(pname)
+
+            this.showStatus(`Проект "${projectName}" успешно загружен`, "green");
+            this.checkCurrentProject();
+            // setProjectLoaded(true);        // ← включаем меню
 
         } catch (err: any) {
             console.error(err);
             this.showStatus(`Ошибка загрузки: ${err.message || err}`, "red");
+            setProjectLoaded(false);
         }
+    }
+
+    private async checkCurrentProject() {
+        try {
+            const current = await GetExpectedProjectDir();
+            if (current) {
+                const exists = await IsExistProjectDir(current);
+                setProjectLoaded(exists);
+            }
+        } catch (_) { }
     }
 
     // СОЗДАНИЕ НОВОГО ПРОЕКТА:
@@ -135,13 +158,13 @@ class ProjectApp {
         }
 
         try {
-            this.showStatus(`Создание проекта "${name}"...`, "blue");
+            // this.showStatus(`Создание проекта "${name}"...`, "blue");
 
             await CreateProject(name);
 
             this.closeModal();
             this.showStatus(`Проект "${name}" успешно создан`, "green");
-
+            await this.loadProject(name);
             await this.refreshList();
 
         } catch (err: any) {
@@ -204,7 +227,7 @@ class ProjectApp {
     // ====================== DELETE ======================
     private handleDeleteClick() {
         if (!this.selectedElement) {
-            this.showStatus("Сначала выберите проект для удаления!", "red");
+            this.showStatus("Необходимо выбрать проект", "red");
             return;
         }
 
@@ -212,7 +235,41 @@ class ProjectApp {
         this.showDeleteModal(projectName);
     }
 
-    private showDeleteModal(projectName: string) {
+    private async showDeleteModal(projectName: string) {
+        const confirmBtn = document.getElementById("confirmDeleteBtn") as HTMLButtonElement;
+        const cancelBtn = document.getElementById("cancelDeleteBtn") as HTMLButtonElement;
+
+        // === СБРОС КНОПОК В ИСХОДНОЕ СОСТОЯНИЕ ===
+        confirmBtn.style.display = "inline-block";
+        confirmBtn.textContent = "Удалить";
+        cancelBtn.textContent = "Отмена";
+        // Сбрасываем обработчики (на всякий случай)
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+
+        const currentProject = await GetExpectedProjectDir();
+
+        // === ЗАПРЕТ УДАЛЕНИЯ ТЕКУЩЕГО ПРОЕКТА ===
+        if (await ConvertNameToProjectDir(projectName) === currentProject) {
+
+            const modal = document.getElementById("deleteProjectModal") as HTMLDivElement;
+            const textEl = document.getElementById("deleteConfirmText") as HTMLParagraphElement;
+
+            textEl.innerHTML = `
+                    <span style="color: #c70000; font-weight: bold;">
+                        Невозможно удалить текущий проект!<br>
+                    </span>
+                    Сначала загрузите другой проект.
+                `;
+            modal.style.display = "flex";
+
+            // Кнопки скрываем или делаем только "Отмена"
+            document.getElementById("confirmDeleteBtn")!.style.display = "none";
+            document.getElementById("cancelDeleteBtn")!.textContent = "Понятно";
+            document.getElementById("cancelDeleteBtn")!.onclick = () => this.closeDeleteModal();
+            return;
+        }
+
         const modal = document.getElementById("deleteProjectModal") as HTMLDivElement;
         const textEl = document.getElementById("deleteConfirmText") as HTMLParagraphElement;
 
@@ -225,16 +282,20 @@ class ProjectApp {
 
     private async confirmDelete(projectName: string) {
         try {
-            this.showStatus(`Удаление проекта "${projectName}"...`, "blue");
+            // this.showStatus(`Удаление проекта "${projectName}"...`, "blue");
             this.closeDeleteModal();
 
             await DeleteProject(projectName);
 
             this.showStatus(`Проект "${projectName}" успешно удалён`, "green");
 
-            await this.refreshList();
+            // После удаления текущего проекта — блокируем меню
+            const exists = await IsExistProjectDir(projectName);
+            setProjectLoaded(exists);           // обычно false
 
-            this.selectedElement = null; // сбрасываем выделение
+            this.selectedElement = null;
+
+            this.refreshList();
 
         } catch (err: any) {
             let errorMsg = "Неизвестная ошибка";
@@ -244,6 +305,7 @@ class ProjectApp {
             else if (err?.toString) errorMsg = err.toString();
 
             this.showStatus(`Ошибка удаления: ${errorMsg}`, "red");
+            setProjectLoaded(false);
         }
     }
 

@@ -67,6 +67,12 @@ class MatrixApp {
         });
     }
 
+    public updateUUID(newUUID: string) {
+        this.currentUUID = newUUID;
+        // Можно сразу перезагрузить таблицу
+        this.refreshTable();
+    }
+
     private async refreshTable() {
         this.showStatus("Идёт загрузка...", "blue");
 
@@ -76,7 +82,7 @@ class MatrixApp {
             this.labels = result.labels; //имена
             this.currentUUID = result.uuid;
 
-            console.log("UUid", this.currentUUID);
+            // console.log("UUid", this.currentUUID);
             this.size = this.labels.length;
             this.matrix = Array(this.size)
                 .fill(null)
@@ -94,7 +100,15 @@ class MatrixApp {
                     );
                     this.showStatus("Данные загружены", "green");
                 } else {
-                    this.showStatus("Загрузка невозможна - список имён был изменён", "orange");
+                    if (savedData.uuid !== this.currentUUID) {
+                        this.showStatus(`uuid: "${savedData.uuid}", текщий: "${this.currentUUID}"`, "orange");
+                    } else if (savedData.data.length !== this.size) {
+                        this.showStatus("Загрузка невозможна - не совпадает сохраненный размер", "orange");
+                    } else if (savedData.data.every(row => row.length !== this.size)) {
+                        this.showStatus("Загрузка невозможна - не все длины строк совпадают", "orange");
+                    } else {
+                        this.showStatus("Загрузка невозможна - список имён был изменён", "orange");
+                    }
                 }
             } catch (e) {
                 this.showStatus("Нет данных для загрузки", "gray");
@@ -186,4 +200,10 @@ class MatrixApp {
 
 export function init() {
     new MatrixApp();
+
+    // const app = new MatrixApp();
+    // // Делаем метод доступным из других файлов
+    // (window as any).updateMatrixUUID = (newUUID: string) => {
+    //     app.updateUUID(newUUID);
+    // };
 }

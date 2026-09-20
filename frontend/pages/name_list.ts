@@ -1,5 +1,5 @@
 import "./name_list.css";
-import { ListAdd, ListGet, ListRemove, SaveTestDate, SaveList, LoadList, SetSessionId, SetList } from "../wailsjs/go/main/App";
+import { ListAdd, LoadListNames, ListRemove, SaveTestDate, SaveList, LoadList, SetSessionId, SetList } from "../wailsjs/go/main/App";
 
 const DEBUG = true;
 const LIST_NAME = "list.json";
@@ -21,7 +21,8 @@ async function refreshNames(listEl: HTMLElement, statusEl: HTMLElement) {
   try {
     log("refreshNames() start");
 
-    let nameList: string[] = await ListGet();
+
+    let nameList: string[] = await LoadListNames(LIST_NAME);
 
     if (nameList.length === 0) {
       listEl.innerHTML = '<p class="empty">Список пуст.</p>';
@@ -61,6 +62,22 @@ async function refreshNames(listEl: HTMLElement, statusEl: HTMLElement) {
   }
 }
 
+async function loadList() {
+  const statusEl = document.querySelector("#status") as HTMLParagraphElement;
+
+  const dateInputEl = document.querySelector("#dateInput") as HTMLInputElement;
+  try {
+    const savedJson: string = await LoadList(LIST_NAME);
+    const savedData = JSON.parse(savedJson) as { labels: string[]; uuid: string; date: string };
+    await SetList(savedData.labels)
+    await SetSessionId(savedData.uuid)
+    await SaveTestDate(savedData.date)
+    dateInputEl.value = savedData.date
+  } catch (err) {
+    showStatus(statusEl, `Ошибка загрузки: ${err}`, "error");
+  }
+}
+
 export async function init() {
   try {
     log("init start");
@@ -73,18 +90,19 @@ export async function init() {
     const dateInputEl = document.querySelector("#dateInput") as HTMLInputElement;
     const dateButtonEl = document.querySelector("#dateButton") as HTMLButtonElement;
 
-    async function loadList() {
-      try {
-        const savedJson: string = await LoadList(LIST_NAME);
-        const savedData = JSON.parse(savedJson) as { labels: string[]; uuid: string; date: string };
-        await SetList(savedData.labels)
-        await SetSessionId(savedData.uuid)
-        await SaveTestDate(savedData.date)
-        dateInputEl.value = savedData.date
-      } catch (err) {
-        showStatus(statusEl, `Ошибка загрузки: ${err}`, "error");
-      }
-    }
+    await loadList();
+    // async function loadList() {
+    //   try {
+    //     const savedJson: string = await LoadList(LIST_NAME);
+    //     const savedData = JSON.parse(savedJson) as { labels: string[]; uuid: string; date: string };
+    //     await SetList(savedData.labels)
+    //     await SetSessionId(savedData.uuid)
+    //     await SaveTestDate(savedData.date)
+    //     dateInputEl.value = savedData.date
+    //   } catch (err) {
+    //     showStatus(statusEl, `Ошибка загрузки: ${err}`, "error");
+    //   }
+    // }
 
 
     async function addDate() {
@@ -136,6 +154,4 @@ export async function init() {
   } catch (err) {
     console.error("init error:", err);
   }
-
-  
 }

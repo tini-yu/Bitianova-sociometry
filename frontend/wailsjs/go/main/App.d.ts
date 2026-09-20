@@ -10,25 +10,33 @@ export function CheckMatrices():Promise<boolean>;
 
 export function CheckResults(arg1:string):Promise<boolean>;
 
+export function ConvertNameToProjectDir(arg1:string):Promise<string>;
+
 export function CreateExcelFile(arg1:string):Promise<void>;
 
 export function CreateProject(arg1:string):Promise<void>;
 
 export function DeleteProject(arg1:string):Promise<void>;
 
+export function DetermineSessionId():Promise<string>;
+
+export function GetExpectedProjectDir():Promise<string>;
+
 export function GetProjectList():Promise<Array<string>>;
 
 export function GetResults():Promise<service.Results>;
+
+export function IsExistProjectDir(arg1:string):Promise<boolean>;
 
 export function ListAdd(arg1:string):Promise<void>;
 
 export function ListExport():Promise<service.ListFile>;
 
-export function ListGet():Promise<Array<string>>;
-
 export function ListRemove(arg1:number):Promise<void>;
 
 export function LoadList(arg1:string):Promise<string>;
+
+export function LoadListNames(arg1:string):Promise<Array<string>>;
 
 export function LoadMatrix(arg1:string):Promise<string>;
 

@@ -18,14 +18,19 @@ func NewListService() *ListService {
 	return &ListService{}
 }
 
-var current_names = make(map[string]bool)
-var names = make([]string, 0) //not nil, but len==0
-var SavedList []string
-var NameIds map[string]int
-var SessionId string
-var testDate time.Time
-var testDateString string
-var prettyTestDate string
+// Убедиться, что совпадает с константой в .ts коде
+const LIST_NAME = "List.json"
+
+var (
+	current_names  = make(map[string]bool)
+	names          = make([]string, 0) // not nil, but len==0
+	SavedList      []string
+	NameIds        map[string]int
+	SessionId      string
+	testDate       time.Time
+	testDateString string
+	prettyTestDate string
+)
 
 func CreateSessionId() {
 	SessionId = uuid.NewString()
@@ -68,12 +73,20 @@ type ListFile struct {
 }
 
 func (s *ListService) ListExport() ListFile {
-	SavedList = names
-	// log.Println("List exported successfully")
+	SavedList, err := s.LoadListNames(LIST_NAME)
+	if err != nil {
+		fmt.Printf("Ошибка экспорта листа имен")
+	}
+
+	uuid := ""
+	uuid, err = LoadSessionId(ProjectDir)
+	if err != nil {
+		fmt.Printf("не удалось загрузить uuid листа")
+	}
 
 	return ListFile{
 		Labels: SavedList,
-		UUID:   SessionId,
+		UUID:   uuid, //SessionId (Актуальный из list.json)
 	}
 }
 
@@ -87,7 +100,7 @@ func getListInterface() *[]interface{} {
 }
 
 func (s *ListService) SaveTestDate(date string) {
-	inputLayout := "2006-01-02" //yyyy-mm-dd
+	inputLayout := "2006-01-02" // yyyy-mm-dd
 
 	t, err := time.Parse(inputLayout, date)
 	if err != nil {
@@ -107,7 +120,6 @@ type ListSaveFile struct {
 
 func (s *ListService) SaveList(filename string) error {
 	fullPath := filepath.Join(ProjectDir, filename)
-	// fmt.Println(fullPath)
 
 	file, err := os.Create(fullPath)
 	if err != nil {
@@ -116,10 +128,29 @@ func (s *ListService) SaveList(filename string) error {
 	}
 	defer file.Close()
 
-	payload := ListSaveFile {
+	payload := ListSaveFile{
 		Labels: names,
-		UUID: SessionId,
-		Date: testDateString,
+		UUID:   SessionId,
+		Date:   testDateString,
+	}
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(payload)
+}
+
+func createEmptyList(fullPath string) error {
+	file, err := os.Create(fullPath)
+	if err != nil {
+		log.Printf("Error creating savefile at %s: %v", fullPath, err)
+		return err
+	}
+	defer file.Close()
+
+	payload := ListSaveFile{
+		Labels: []string{},
+		UUID:   "",
+		Date:   "",
 	}
 
 	encoder := json.NewEncoder(file)
@@ -131,28 +162,78 @@ func (s *ListService) LoadList(filename string) (string, error) {
 	fullPath := filepath.Join(ProjectDir, filename)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
-		s.SaveList("list.json") //Поменять название на изменяемую переменную
+		createEmptyList(fullPath)
 		return "{}", errors.New("save file not found")
 	}
 	file, err := os.Open(fullPath)
 	if err != nil {
-		log.Println("Error opening saved matrix file")
+		log.Println("Error opening saved namelist file")
 		return "", err
 	}
 	defer file.Close()
 
 	var listSaveFile ListSaveFile
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&listSaveFile) //проверяем совпадение структуры json и MatrixFile
+	err = decoder.Decode(&listSaveFile) // проверяем совпадение структуры
 	if err != nil {
-		log.Println("Error decoding saved matrix")
+		log.Println("Error decoding saved namelist")
 		return "", err
 	}
 
 	jsonData, err := json.Marshal(listSaveFile)
 	if err != nil {
-		log.Println("Error marshalling saved matrix")
+		log.Println("Error marshalling saved namelist")
 		return "", err
 	}
 	return string(jsonData), nil
-} 
+}
+
+func (s *ListService) LoadListNames(filename string) ([]string, error) {
+	fullPath := filepath.Join(ProjectDir, filename)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		createEmptyList(fullPath)
+		return []string{}, errors.New("save file not found")
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		log.Println("Error opening saved namelist file")
+		return []string{}, err
+	}
+	defer file.Close()
+
+	var listSaveFile ListSaveFile
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&listSaveFile) // проверяем совпадение структуры
+	if err != nil {
+		log.Println("Error decoding saved namelist")
+		return []string{}, err
+	}
+
+	return listSaveFile.Labels, nil
+}
+
+func LoadSessionId(listDir string) (string, error) {
+	fullPath := filepath.Join(listDir, LIST_NAME)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		createEmptyList(fullPath)
+		return "", errors.New("save file not found")
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		log.Println("Error opening saved namelist file")
+		return "", err
+	}
+	defer file.Close()
+
+	var listSaveFile ListSaveFile
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&listSaveFile) // проверяем совпадение структуры
+	if err != nil {
+		log.Println("Error decoding saved namelist")
+		return "", err
+	}
+
+	return listSaveFile.UUID, nil
+}
