@@ -16,7 +16,7 @@ func NewReportService() *ReportService {
 func (s *ReportService) SaveReportFile(fullPath string) error {
 	doc := document.New()
 	// Титульник
-	subtitle := doc.AddParagraph("Аналитическая справка по результатам социометрии ")
+	subtitle := doc.AddParagraph("Аналитическая справка по результатам социометрии")
 	subtitle.SetStyle(style.StyleSubtitle)
 
 	// n1
@@ -73,7 +73,7 @@ func (s *ReportService) SaveReportFile(fullPath string) error {
 		listn_7 = "Референтная группа отсутствует."
 		content = doc.AddNumberedList(listn_7, 0, document.ListTypeDecimal)
 	} else {
-		listn_7 = "Референтная группа в сравнении с системой социометрических статусов:"
+		listn_7 = "Референтная группа в сравнении с системой социометрических статусов (рейтинг по референтности):"
 		content = doc.AddNumberedList(listn_7, 0, document.ListTypeDecimal)
 
 		for _, val := range n7.n7 {
@@ -83,9 +83,53 @@ func (s *ReportService) SaveReportFile(fullPath string) error {
 	}
 	content.SetStyle(style.StyleNormal)
 
+	// Выводы титульник:
+	subtitleResults := doc.AddParagraph("На основе эмпирических данных можно сделать следующие выводы:")
+	subtitleResults.SetStyle(style.StyleSubtitle)
+
+	// n8
+	n8_1 := "Преобладание или просто большое количество непринятых детей, говорит о низком уровне психологического развития группы или о ее распаде."
+	n8_2 := "Преобладание принятых детей говорит о комфортной психологической атмосфере в группе."
+	n8_3 := "Ситуация существования нескольких изгоев на фоне достаточно благоприятной эмоциональной структуры отношений других членов группы свидетельствует о типе «сплоченный класс против одного».  Решение конфликтов в этой группе происходит за счет «козла отпущения». Даная ситуация так или иначе связано с «руководящей линией» взрослого, работающего с классом."
+	n8_4 := "В данной группе всем достается некоторое количество отвержений. Решение конфликтов в коллективе происходит через поиск причин и решений."
+	n8_5 := "Наличие внутри коллектива большого количества противоречивых связей свидетельствует о разрозненной групповой структуре, что говорит о неблагополучии эмоциональных отношений, возможном распаде или близком переструктурировании отношений. Группа пребывает на сложной ступени своего развития, характеризующейся и конфликтностью, и низкой групповой эмпатией, и эмоциональной неудовлетворенностью."
+	n8_6 := "Эмоциональная привлекательность значительной части референтной группы не совпадает с ценностной значимостью. В число референтометрических лидеров попадают изгои или отвергаемые, значит существует лабильность в группе."
+	n8_7_1 := "Эмоциональная привлекательность значительной части референтной группы совпадает с ценностной значимостью, что говорит о том, что в классе существует открытость собственного мнения. Потенциальные лидеры:"
+
+	n8_7_2 := "\tобладают реальным влиянием на мысли и поступки членов группы и в критических ситуациях за ними пойдут как за лидером."
+	n8_8 := fmt.Sprintf("Рассчитывать на высокую учебную активность у %.1f%% (%d чел.) детей нецелесообразно, так как они глубоко погружены в свои эмоциональные отношения. При этом %.1f%% (%d чел.) детей с адекватной рефлексией и %.1f%% (%d чел.) с неадекватной рефлексией.",
+		n8.n8_8_1, n8.n8_8_1_p, n8.n8_8_2, n8.n8_8_2_p, n8.n8_8_3, n8.n8_8_3_p)
+	if n8.n8_1 {
+		content = doc.AddBulletList(n8_1, 0, document.BulletTypeDash)
+	}
+	if n8.n8_2 {
+		content = doc.AddBulletList(n8_2, 0, document.BulletTypeDash)
+	}
+	if n8.n8_3 {
+		content = doc.AddBulletList(n8_3, 0, document.BulletTypeDash)
+	}
+	if n8.n8_4 {
+		content = doc.AddBulletList(n8_4, 0, document.BulletTypeDash)
+	}
+	if n8.n8_5 {
+		content = doc.AddBulletList(n8_5, 0, document.BulletTypeDash)
+	}
+	if n8.n8_6 {
+		content = doc.AddBulletList(n8_6, 0, document.BulletTypeDash)
+	}
+	if n8.n8_7 {
+		content = doc.AddBulletList(n8_7_1, 0, document.BulletTypeDash)
+		for _, name := range n8.n8_7_list {
+			content = doc.AddBulletList(name, 1, document.BulletTypeDot)
+		}
+		content = doc.AddBulletList(n8_7_2, 0, document.BulletTypeDash)
+	}
+	if n8.n8_8 {
+		content = doc.AddBulletList(n8_8, 0, document.BulletTypeDash)
+	}
+	content.SetStyle(style.StyleNormal)
+
 	// 5. Save the document
-	// fullPath := filepath.Join(SaveDir, "Аналитическая справка.docx")
-	// fmt.Println(fullPath)
 	err := doc.Save(fullPath)
 	if err != nil {
 		return fmt.Errorf("Failed to save document: %v", err)

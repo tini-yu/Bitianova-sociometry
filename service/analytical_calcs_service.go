@@ -9,6 +9,15 @@ import (
 	"strconv"
 )
 
+// Всего людей в тесте (длина списка людей)
+func getPeopleTotal() int {
+	if len(names) == 0 {
+		log.Print("Список имён не должен быть пустым")
+		return 1
+	}
+	return len(names)
+}
+
 // Всего будет 7 пунктов, которые необходимо отразить в отчёте. Для каждого численного значения свой подпункт.
 
 type n1struct struct {
@@ -23,10 +32,7 @@ var n1 n1struct
 
 func (n1 *n1struct) filln1() {
 	n1.n1_1 = prettyTestDate
-	n1.n1_2 = len(names) // never 0
-	if len(names) == 0 {
-		log.Print("Список имён не должен быть пустым")
-	}
+	n1.n1_2 = getPeopleTotal()
 }
 
 type n2struct struct {
@@ -58,7 +64,7 @@ func (n2 *n2struct) filln2(results [][]string) {
 	isolated := 0
 	focusGroupRejected := 0
 
-	total := n1.n1_2
+	total := getPeopleTotal()
 
 	for _, row := range results {
 		switch row[2] {
@@ -132,7 +138,7 @@ type n3struct struct {
 var n3 n3struct
 
 func (n3 *n3struct) filln3(results [][]string) {
-	total := n1.n1_2
+	total := getPeopleTotal()
 
 	mutualPeopleTotal := 0
 	mutualPositiveTotal := 0
@@ -185,7 +191,7 @@ type n4struct struct {
 var n4 n4struct
 
 func (n4 *n4struct) filln4(results [][]string, matrix1 [][]int) {
-	total := n1.n1_2
+	total := getPeopleTotal()
 	contradictory := 0
 	contradictoryPositive := 0
 
@@ -240,7 +246,7 @@ type n56struct struct {
 var n56 n56struct
 
 func (n56 *n56struct) filln56(results [][]string) {
-	total := n1.n1_2
+	total := getPeopleTotal()
 	adeq := 0
 	adeqRejected := 0
 	unadeq := 0
@@ -295,18 +301,32 @@ func (n56 *n56struct) filln56(results [][]string) {
 	}
 }
 
+type n8support struct {
+	n8_n7_total       int      // всего людей в п.6 аналит. записки
+	n8_n7_noMatch     int      // кол-во "Не совпадает"
+	n8_n7_match       int      // кол-во "Совпадает"
+	n8_n7_match_names []string // имена людей с "Совпадает"
+}
+
 type n7struct struct {
 	n7 []string
 }
 
+var n8s n8support
+
 var n7 n7struct
 
 func (n7 *n7struct) filln7(results [][]string) {
-	total := n1.n1_2
+	total := getPeopleTotal()
 	refNames := []string{}
 	refResults := []string{}
 
-	id_refN := [][]int{} // [[id, refN]] - где id - индекс имени человека в refNames,
+	// for support:
+	match := 0
+	noMatch := 0
+	matchNames := []string{}
+
+	id_refN := [][]int{} // [[id, refN]] - где id - индекс имени человека в refNames.
 
 	// Для сортировки по кол-ву реф. выборов заведем третий слайс с индексами|выборами [][]int
 	// Отсортируем по кол-ву выборов, а потом используем индексы, чтобы составить список6 Имя - результат
@@ -320,14 +340,21 @@ func (n7 *n7struct) filln7(results [][]string) {
 			refNames = append(refNames, names[row_id])
 			if row[2] == "Звезда" || row[2] == "Популярные" {
 				refResults = append(refResults, "Совпадает")
+				match += 1
+				matchNames = append(matchNames, names[row_id])
 			} else {
 				refResults = append(refResults, "Не совпадает")
+				noMatch += 1
 			}
 			// Пополняем список для сорта
 			refNames_id := len(refNames) - 1
 			id_refN = append(id_refN, []int{refNames_id, ref})
 		}
 	}
+
+	n8s.n8_n7_match = match
+	n8s.n8_n7_noMatch = noMatch
+	n8s.n8_n7_match_names = matchNames
 
 	// Сортируем
 	slices.SortFunc(id_refN, func(a, b []int) int {
@@ -341,6 +368,7 @@ func (n7 *n7struct) filln7(results [][]string) {
 	}
 
 	n7.n7 = parts
+	n8s.n8_n7_total = len(refNames)
 }
 
 func (s *ReportService) CalculateAnalyticalReport() error {
@@ -361,6 +389,61 @@ func (s *ReportService) CalculateAnalyticalReport() error {
 	n4.filln4(results, matrix1)
 	n56.filln56(results)
 	n7.filln7(results) // может быть ""
+	n8.filln8(results)
 
 	return nil
+}
+
+// Под заголовком выводов рассчет значений описан ниже.
+// Всего возможных пунктов 8. Все нужно рассчитать, но вывести только выполнившие условия.
+
+type n8struct struct { // Выводить если:
+	n8_1      bool     // >25% of total
+	n8_2      bool     // >=75% of total
+	n8_3      bool     // >= 2
+	n8_4      bool     // У каждого участника кол-во отвержений !=0 (true)
+	n8_5      bool     // >=50% total
+	n8_6      bool     // > 50% total
+	n8_7      bool     // >= 50% total
+	n8_7_list []string // список лидеров
+	n8_8      bool
+	n8_8_1    float64
+	n8_8_1_p  int
+	n8_8_2    float64
+	n8_8_2_p  int
+	n8_8_3    float64
+	n8_8_3_p  int
+}
+
+var n8 n8struct
+
+func (n8 *n8struct) filln8(results [][]string) {
+	total := getPeopleTotal()
+
+	n8.n8_1 = n2.n2_1_4 > 25               // 2.1.4 непринятые/все
+	n8.n8_2 = n2.n2_1_1 >= 75              // 2.1.1 принятые/все
+	n8.n8_3 = (n2.n2_3_p + n2.n2_2_p) >= 2 // 2.3 чел + 2.2 чел
+	n8.n8_4 = true
+	for _, row := range results {
+		num, err := strconv.Atoi(row[1])
+		if err != nil {
+			fmt.Println(err)
+		}
+		if num == 0 {
+			n8.n8_4 = false
+		}
+	}
+
+	n8.n8_5 = n4.n4_1 >= 50                                                                          // люди с противоречивыми выборами / всего
+	n8.n8_6 = (math.RoundToEven(float64(n8s.n8_n7_noMatch)*1000/float64(n8s.n8_n7_total)) / 10) > 50 // "Не совпадает"/п.6
+	n8.n8_7 = (math.RoundToEven(float64(n8s.n8_n7_match)*1000/float64(n8s.n8_n7_total)) / 10) >= 50  // "Совпадает"/п.6
+	n8.n8_7_list = n8s.n8_n7_match_names                                                             // имена "Совпадает"
+
+	n8.n8_8_1_p = n56.n5_2_p + n56.n6_1_p // адекватные непринятые + неадекватные представления
+	n8.n8_8 = n8.n8_8_1_p > 0
+	n8.n8_8_1 = math.RoundToEven(float64(n8.n8_8_1_p)*1000/float64(total)) / 10 // адекватные непринятые + неадекватные представления/ все
+	n8.n8_8_2_p = n56.n5_2_p                                                    // адекватные непринятые
+	n8.n8_8_2 = math.RoundToEven(float64(n56.n5_2_p)*1000/float64(total)) / 10  // % от всех
+	n8.n8_8_3_p = n56.n6_1_p                                                    // неадекватные представления
+	n8.n8_8_3 = math.RoundToEven(float64(n56.n6_1_p)*1000/float64(total)) / 10  // % от всех
 }
